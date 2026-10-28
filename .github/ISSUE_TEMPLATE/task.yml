@@ -1,0 +1,40 @@
+name: Công việc
+description: Một task của nhóm (tối đa 8 giờ, theo rủi ro R1 trong Project Plan).
+title: "[task] "
+body:
+  - type: input
+    id: requirements
+    attributes:
+      label: Yêu cầu liên quan
+      description: Mã trong SRS, ví dụ FR-09, BR-01. Để trống nếu là việc quản lý hoặc tài liệu.
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Tiêu chí nghiệm thu
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: estimate
+    attributes:
+      label: Ước lượng (giờ)
+      description: Dùng cho chỉ số "Nỗ lực thực tế so với ước lượng".
+    validations:
+      required: true
+  - type: input
+    id: points
+    attributes:
+      label: Story points
+      description: Dùng cho chỉ số "Vận tốc sprint".
+  - type: input
+    id: actual
+    attributes:
+      label: Thực tế (giờ)
+      description: Điền khi đóng task.

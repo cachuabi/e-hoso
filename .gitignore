@@ -1,0 +1,10 @@
+.sdlc-backup/
+.claude/settings.local.json
+.env
+.env.local
+.env.*.local
+__pycache__/
+.DS_Store
+.idea/
+.vscode/
+report.md

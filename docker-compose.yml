@@ -1,0 +1,32 @@
+# Local services for e-HoSo (NFR-08: the whole system starts with `docker compose up`).
+# Only fake data is allowed (NFR-04). The backend and frontend services are added in
+# Sprint 1 once they have Dockerfiles.
+#
+# File storage: the SRS chooses MinIO, but MinIO no longer publishes Docker images.
+# The tech lead picks an S3-compatible replacement (see the GitHub issue), then adds it here.
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ehoso
+      POSTGRES_USER: ehoso
+      POSTGRES_PASSWORD: ehoso-dev-only
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ehoso -d ehoso"]
+      interval: 5s
+      retries: 10
+
+  # Test SMTP server (assumption A5): catches every email, web UI on http://localhost:8025
+  mail:
+    image: axllent/mailpit:v1.32
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  db-data:
