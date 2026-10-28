@@ -1,0 +1,37 @@
+# Weekly metrics report (Project Plan, slide 8), posted as an issue labelled "report"
+# every Sunday at 20:05 Vietnam time, after members update their tasks (20:00) and
+# before the weekly meeting (20:30). Can also be started by hand from the Actions tab.
+name: Weekly metrics
+
+on:
+  schedule:
+    - cron: "5 13 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # the requirement baseline is the srs-v1.0 tag
+      - uses: ./.github/actions/setup-project
+      - name: Backend coverage (JaCoCo)
+        continue-on-error: true  # a red build must not stop the report; it shows as missing data
+        run: cd src/backend && ./mvnw -B verify
+      - name: Build report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/metrics.py --repo "$GITHUB_REPOSITORY" --out report.md
+      - name: Post report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" --label report \
+            --title "Báo cáo chỉ số tuần $(TZ=Asia/Ho_Chi_Minh date +%d/%m/%Y)" --body-file report.md

@@ -1,0 +1,35 @@
+# The quality gate that decides whether a pull request may merge ("check" is a required
+# status check on main). It runs exactly what developers run locally: make check.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-project
+      - name: Quality gate
+        run: bash scripts/check.sh
+      - name: Traceability table (job summary)
+        if: always()
+        run: python3 tools/req.py rtm --markdown "$GITHUB_STEP_SUMMARY" || true
+      - name: Coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-report
+          path: src/backend/target/site/jacoco/
+          if-no-files-found: ignore
