@@ -6,7 +6,7 @@ Hệ thống tiếp nhận, xử lý và theo dõi hồ sơ thủ tục hành ch
 ## Stack
 - Backend: Java 21, Spring Boot 3.5, Maven (`src/backend`), REST `/api/v1/...`, OpenAPI 3 qua springdoc.
 - Frontend: React 19 + TypeScript + Vite (`src/frontend`), ESLint + Prettier, Vitest.
-- Hạ tầng: PostgreSQL 17, Mailpit (SMTP thử nghiệm), Docker Compose (`docker-compose.yml`). Kho tệp S3 đang chờ chọn bản thay thế MinIO.
+- Hạ tầng: PostgreSQL 17, Mailpit (SMTP thử nghiệm), Docker Compose (`docker-compose.yml`). Kho tệp S3: Garage (ADR-001, `docs/design/adr/`), chưa thêm vào compose (issue #40).
 - Múi giờ: mọi thời điểm lưu ISO 8601 có múi giờ, tính hạn theo Asia/Ho_Chi_Minh (NFR-10).
 
 ## Thư mục quan trọng
