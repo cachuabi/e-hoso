@@ -37,3 +37,5 @@ Hệ thống tiếp nhận, xử lý và theo dõi hồ sơ thủ tục hành ch
 
 ## Quy trình làm việc
 @.claude/sdlc/RULES.md
+
+Chế độ làm việc của nhóm (Claude làm thay 5 vai, duyệt 3 tầng, họp và nhật ký ngày): `docs/QUY_TRINH.md`.

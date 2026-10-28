@@ -4,3 +4,5 @@
 - Đặt tên file: `YYYY-MM-DD_<chủ-đề>.md`, ví dụ `2026-11-01_hop-tuan.md`.
 - Chép `TEMPLATE.md` để bắt đầu.
 - Báo cáo chỉ số tuần được bot tạo thành issue nhãn `report` lúc 20:05 Chủ nhật. Dán liên kết issue đó vào biên bản, cùng hành động khắc phục cho mỗi chỉ số vượt ngưỡng.
+- Nhật ký ngày (standup bất đồng bộ): `daily/YYYY-MM-DD.md`, theo `../docs/templates/NhatKyNgay.md`. Không phải biên bản họp.
+- Quy trình họp, duyệt và ghi nhận: `../docs/QUY_TRINH.md`.
