@@ -1,7 +1,7 @@
 id,type,priority,sprint,milestone,source,related,title,statement
 FR-01,FR,M,S1,M3,KS-01,,Đăng ký tài khoản người dân,"Khách phải đăng ký được tài khoản người dân bằng họ tên, số định danh cá nhân 12 chữ số, email, số điện thoại, mật khẩu. Tài khoản chỉ hoạt động sau khi người dùng bấm liên kết xác thực gửi tới email, có hiệu lực 24 giờ."
 FR-02,FR,M,S1,M3,NFR-03,,Đăng nhập và khoá tài khoản khi sai nhiều lần,"Người dùng phải đăng nhập bằng email và mật khẩu. Sau 5 lần sai liên tiếp, tài khoản bị khoá 15 phút."
-FR-03,FR,S,S1,M3,,,Đặt lại mật khẩu qua email,"Người dùng phải đặt lại được mật khẩu qua liên kết gửi tới email, có hiệu lực 30 phút, dùng được một lần."
+FR-03,FR,S,S1,M3,NFR-03,,Đặt lại mật khẩu qua email,"Người dùng phải đặt lại được mật khẩu qua liên kết gửi tới email, có hiệu lực 30 phút, dùng được một lần."
 FR-04,FR,M,S1,M3,KS-03,,Quản lý tài khoản cán bộ và vai trò,"Quản trị viên phải tạo, khoá, mở khoá tài khoản cán bộ và gán một trong các vai trò: CBMC, CCTP, Lãnh đạo, Quản trị viên."
 FR-05,FR,M,S1,M3,NFR-03,,Kiểm tra quyền phía máy chủ,"Hệ thống phải kiểm tra quyền phía máy chủ cho mọi thao tác theo ma trận phân quyền ở Mục 3.7 của SRS."
 FR-06,FR,M,S1,M3,KS-01,,Danh mục thủ tục,"Khách phải xem được danh mục thủ tục; mỗi thủ tục hiển thị thành phần hồ sơ (bắt buộc, có điều kiện), thời hạn giải quyết, giấy tờ cần xuất trình."
@@ -40,7 +40,7 @@ NFR-10,NFR,M,ALL,M5,,,Thời gian,"Mọi thời điểm lưu theo chuẩn ISO 86
 BR-01,BR,M,S2,M4,KS-03,FR-09;FR-17,Định dạng mã hồ sơ và mã tham chiếu,"Mã hồ sơ có dạng HS-YYMMDD-NNNN: ngày tiếp nhận và số thứ tự 4 chữ số, bắt đầu lại từ 0001 mỗi ngày; duy nhất toàn hệ thống. Mã tham chiếu có dạng TC- + 8 ký tự chữ, số ngẫu nhiên."
 BR-02,BR,M,S2,M4,KS-08;KS-09;KS-10;KS-13,FR-17,Thời hạn mặc định của 3 thủ tục,"Thời hạn mặc định: chứng thực bản sao – trong ngày; đăng ký khai sinh – trong ngày; xác nhận tình trạng hôn nhân – 3 ngày làm việc. Thời hạn tính từ thời điểm tiếp nhận."
 BR-03,BR,M,S2,M4,KS-11;KS-12,FR-17,Tính ngày hẹn trả theo mốc 15:00,"Với thủ tục “trong ngày”: tiếp nhận trước 15:00 của một ngày làm việc thì hạn là 17:00 cùng ngày; từ 15:00 trở đi, hoặc vào ngày không làm việc, thì hạn là 17:00 của ngày làm việc tiếp theo. Với thủ tục N ngày làm việc: hạn là 17:00 của ngày làm việc thứ N sau ngày tiếp nhận."
-BR-04,BR,S,S1,M3,,FR-10,Điều kiện rút hồ sơ,"Chỉ rút được hồ sơ ở trạng thái Đã nộp hoặc Chờ bổ sung."
+BR-04,BR,S,S1,M3,KS-01,FR-10,Điều kiện rút hồ sơ,"Chỉ rút được hồ sơ ở trạng thái Đã nộp hoặc Chờ bổ sung."
 BR-05,BR,S,S2,M4,KS-10,FR-20,Gia hạn do xác minh,"Đánh dấu cần xác minh cộng thêm 3 ngày làm việc vào ngày hẹn trả hiện tại; mỗi hồ sơ chỉ được cộng một lần."
 BR-06,BR,M,S2,M4,KS-04,FR-24,Nhãn hạn xử lý,"“Quá hạn” khi đã qua ngày hẹn trả mà chưa vào Đã có kết quả; “Sắp đến hạn” khi thời điểm hiện tại cách ngày hẹn trả dưới 2 giờ (thủ tục trong ngày) hoặc dưới 24 giờ (thủ tục N ngày); còn lại là “Còn hạn”."
 BR-07,BR,M,S2,M4,KS-06,FR-21;FR-25,Đúng hạn và trễ hạn,"Hồ sơ “đúng hạn” khi thời điểm vào trạng thái Đã có kết quả không muộn hơn ngày hẹn trả; ngược lại là “trễ hạn”."

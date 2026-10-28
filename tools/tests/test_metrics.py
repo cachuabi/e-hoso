@@ -90,6 +90,17 @@ class VolatilityTest(unittest.TestCase):
     def test_missing_baseline_is_reported(self):
         self.assertIsNone(metrics.requirement_volatility(None, {"FR-01": ("a",)}).value)
 
+    def test_only_statement_and_priority_count_as_a_requirement_change(self):
+        header = "id,type,priority,sprint,milestone,source,related,title,statement\n"
+        baseline = metrics.requirement_content(header + "FR-01,FR,M,S1,M3,,,Cũ,Phải làm X.\n"
+                                                        "FR-02,FR,S,S1,M3,,,T,Phải làm Y.\n")
+        metadata_only = metrics.requirement_content(header + "FR-01,FR,M,S2,M4,KS-01,BR-01,Mới,Phải làm X.\n"
+                                                             "FR-02,FR,S,S1,M3,,,T,Phải làm Y.\n")
+        reworded = metrics.requirement_content(header + "FR-01,FR,M,S1,M3,,,Cũ,Phải làm Z.\n"
+                                                        "FR-02,FR,M,S1,M3,,,T,Phải làm Y.\n")
+        self.assertEqual(metrics.requirement_volatility(baseline, metadata_only).value, 0)
+        self.assertEqual(metrics.requirement_volatility(baseline, reworded).value, 1.0)
+
 
 class CoverageTest(unittest.TestCase):
     JACOCO = (

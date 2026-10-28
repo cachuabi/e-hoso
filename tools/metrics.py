@@ -240,8 +240,13 @@ def _pull_requests(repo: str, now: datetime) -> list[dict]:
     return result
 
 
-def _catalog_rows(text: str) -> dict:
-    return {row["id"]: tuple(row.values()) for row in csv.DictReader(io.StringIO(text))}
+def requirement_content(text: str) -> dict:
+    """What counts as the requirement itself: its statement and priority.
+
+    Metadata (title, source, related, sprint, milestone) can be corrected without it
+    being a requirement change for the volatility metric.
+    """
+    return {row["id"]: (row["priority"], row["statement"]) for row in csv.DictReader(io.StringIO(text))}
 
 
 def _baseline_rows(root: Path) -> dict | None:
@@ -249,7 +254,7 @@ def _baseline_rows(root: Path) -> dict | None:
         text = _run(["git", "-C", str(root), "show", f"{BASELINE_TAG}:docs/requirements/requirements.csv"])
     except subprocess.CalledProcessError:
         return None
-    return _catalog_rows(text)
+    return requirement_content(text)
 
 
 def _traceability(root: Path) -> Metric:
@@ -279,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"metrics: could not read GitHub data: {err}", file=sys.stderr)
         return 1
     jacoco = Path(args.jacoco)
-    current = _catalog_rows(req.DEFAULT_CATALOG.read_text(encoding="utf-8"))
+    current = requirement_content(req.DEFAULT_CATALOG.read_text(encoding="utf-8"))
     report = Report(
         schedule=schedule_progress(milestones, now),
         effort=effort_deviation(issues),
