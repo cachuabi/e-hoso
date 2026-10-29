@@ -25,7 +25,20 @@ Theo chỉ đạo của PM Đỗ Văn Tiến (QD-03, 28/10/2026): nhóm không �
 ## Duyệt mã nguồn và tài liệu trên GitHub (QD-04)
 
 - Mỗi thay đổi đi qua nhánh riêng và Pull Request; `main` được bảo vệ: 1 người duyệt, CI xanh.
-- PM mời thành viên vào repo và gán người duyệt cho từng task; thành viên được gán duyệt PR trên GitHub. PM là người duyệt cuối khi cần.
+- PM mời thành viên vào repo (quyền Write) và gán người duyệt cho từng task; thành viên được gán duyệt PR trên GitHub. PM là người duyệt cuối khi cần.
+- Người duyệt bắt buộc theo phạm vi thư mục: `.github/CODEOWNERS`; nhánh `main` bật "Require review from Code Owners" (QD-08).
+- Người thực hiện: Assignee của issue là thành viên chịu trách nhiệm phần việc theo vai (nắm nội dung để trình bày khi bảo vệ).
+- PR do tài khoản PM mở thì PM không tự duyệt được trên GitHub; PM chỉ dùng quyền Admin để bỏ qua quy định trong trường hợp khẩn cấp và ghi lý do vào PR.
+
+| GitHub | Thành viên | Vai |
+|---|---|---|
+| `cachuabi` | Đỗ Văn Tiến | PM + BA |
+| `KhangHandome` | Mai Thành Khang | Tech Lead |
+| `quanganh2302` | Đoàn Quang Anh | Backend + CSDL |
+| `dovanphuong99a0-cmd` | Đỗ Văn Phương | Frontend + UI/UX |
+| `maixuandat08` | Mai Xuân Đạt | QA + DevOps |
+
+Package backend theo module (khớp `CODEOWNERS`, SDD dùng đúng tên này): `account`, `auth`, `workflow` (Khang); `dossier`, `file`, `notification`, `audit`, `dashboard`, `catalog` và migration CSDL `resources/db` (Quang Anh).
 - Claude không merge. Người duyệt PR là cổng cuối cùng.
 
 ## Quyết định
