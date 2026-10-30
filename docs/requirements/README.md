@@ -2,13 +2,15 @@
 
 | File | Vai trò |
 |---|---|
-| `eHoSo_SRS_v1.1.pdf` | **Đặc tả yêu cầu hiện hành** (ISO/IEC/IEEE 29148): áp dụng CR-01 (lịch theo Project Plan) và các phát hiện review; nội dung 47 yêu cầu giữ nguyên như v1.0 |
+| `eHoSo_SRS_v1.1.pdf` | **Đặc tả yêu cầu hiện hành** (ISO/IEC/IEEE 29148): áp dụng CR-01 (lịch theo Project Plan) và các phát hiện review; nội dung 47 yêu cầu giữ nguyên như v1.0. Dựng lại 28/10 sau review chéo: đính chính lịch sử phiên bản (QD-05), đóng OI-05, OI-06 |
 | `eHoSo_SRS_v1.0.pdf` | Bản gốc, giữ để đối chiếu (tag `srs-v1.0`) |
 | `requirements.csv` | Danh mục máy đọc được: 28 FR, 10 NFR, 9 BR. **Nguồn sự thật** cho issue, RTM và SRS v1.1 |
-| `eHoSo_KhaoSat_v1.0.pdf` | Báo cáo khảo sát: nguồn KS-01 → KS-14 của các yêu cầu |
-| `eHoSo_UseCase_v1.0.pdf` | Sơ đồ và đặc tả đủ 17 use case |
+| `eHoSo_KhaoSat_v1.1.pdf` | Báo cáo khảo sát hiện hành: nguồn KS-01 → KS-14 của các yêu cầu (v1.0 giữ để đối chiếu) |
+| `eHoSo_UseCase_v1.1.pdf` | Sơ đồ và đặc tả đủ 17 use case, bản hiện hành (v1.0 giữ để đối chiếu) |
 | `eHoSo_RTM_v1.0.pdf`, `.csv` | RTM ở mốc M1: yêu cầu ↔ nguồn ↔ use case. Từ M3, phần test được sinh tự động (bên dưới) |
-| `eHoSo_SRS_Review_v1.0.pdf` | Báo cáo review SRS v1.0 (10 phát hiện) và quyết định CR-01 |
+| `eHoSo_SRS_Review_v1.2.pdf` | Báo cáo review SRS v1.0 (10 phát hiện), quyết định CR-01, trạng thái xử lý sau SRS v1.1 (v1.0 giữ để đối chiếu) |
+| `reviews/RV-M1-*.md` | Phiếu review chéo các sản phẩm M1 (Claude thực hiện theo vai người duyệt) |
+| `PheDuyet_M1.md` | Phiếu phê duyệt mốc M1: sản phẩm, quyết định và thông tin chờ PM |
 
 ## Ma trận truy vết (RTM) được sinh tự động
 

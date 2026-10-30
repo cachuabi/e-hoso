@@ -11,7 +11,7 @@ Hệ thống tiếp nhận, xử lý và theo dõi hồ sơ thủ tục hành ch
 
 ## Thư mục quan trọng
 - `docs/requirements/requirements.csv`: **nguồn sự thật** cho FR/NFR/BR, chép từ SRS v1.0. Đổi yêu cầu thì sửa ở đây.
-- `docs/requirements/eHoSo_SRS_v1.1.pdf`: SRS hiện hành (ISO/IEC/IEEE 29148). `eHoSo_UseCase_v1.0.pdf` đặc tả đủ 17 use case; nên đọc trước khi làm một FR.
+- `docs/requirements/eHoSo_SRS_v1.1.pdf`: SRS hiện hành (ISO/IEC/IEEE 29148). `eHoSo_UseCase_v1.1.pdf` đặc tả đủ 17 use case; nên đọc trước khi làm một FR.
 - `src/backend/src/main/java/vn/ehoso/`: mã backend. Logic nghiệp vụ đặt trong package `*.service` (JaCoCo đo ≥70% ở đây).
 - `src/frontend/src/`: mã frontend.
 - `tools/req.py`, `tools/metrics.py`: kiểm tra truy vết (RTM) và báo cáo chỉ số tuần.
