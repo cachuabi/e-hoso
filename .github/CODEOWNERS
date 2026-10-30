@@ -1,0 +1,62 @@
+# Người duyệt bắt buộc theo phạm vi (docs/QUY_TRINH.md, QD-04, QD-08).
+# Quy tắc khớp SAU CÙNG thắng. Một mục có nhiều chủ sở hữu thì chỉ cần MỘT người duyệt.
+# PR do tài khoản @cachuabi (PM) mở nên @cachuabi không tự duyệt được; vì vậy các phạm vi
+# của PM có thêm người duyệt thứ hai. PM duyệt cuối qua phiếu phê duyệt mốc và issue `decision`.
+#
+# Vai: @cachuabi Tiến (PM + BA) · @KhangHandome Khang (Tech Lead)
+#      @quanganh2302 Quang Anh (Backend + CSDL) · @dovanphuong99a0-cmd Phương (Frontend + UI/UX)
+#      @maixuandat08 Đạt (QA + DevOps)
+
+# Mặc định: Tech Lead
+*                                   @KhangHandome
+
+# Quản lý dự án, họp, quy trình (PM; QA đồng duyệt)
+/docs/project/                      @cachuabi @maixuandat08
+/meetings/                          @cachuabi @maixuandat08
+/docs/QUY_TRINH.md                  @cachuabi @maixuandat08
+/docs/templates/                    @cachuabi @maixuandat08
+/docs/README.md                     @cachuabi @maixuandat08
+/CLAUDE.md                          @cachuabi @KhangHandome
+
+# Yêu cầu: QA duyệt SRS, RTM (D05b, D08)
+/docs/requirements/                 @maixuandat08
+
+# Thiết kế: Tech Lead (D11 SDD, D13 ERD, ADR)
+/docs/design/                       @KhangHandome
+/docs/design/uml/                   @quanganh2302
+/docs/design/api/                   @dovanphuong99a0-cmd
+/docs/design/prototype/             @cachuabi @KhangHandome
+
+# Kiểm thử (D16 Test Plan; PM duyệt, Tech Lead đồng duyệt)
+/docs/test/                         @cachuabi @KhangHandome
+
+# Backend: Tech Lead (tài khoản, phân quyền, luồng xử lý)
+/src/backend/                       @KhangHandome
+# Backend: Quang Anh (hồ sơ, tệp, email, nhật ký, dashboard, danh mục, CSDL)
+/src/backend/src/main/java/vn/ehoso/dossier/        @quanganh2302
+/src/backend/src/main/java/vn/ehoso/file/           @quanganh2302
+/src/backend/src/main/java/vn/ehoso/notification/   @quanganh2302
+/src/backend/src/main/java/vn/ehoso/audit/          @quanganh2302
+/src/backend/src/main/java/vn/ehoso/dashboard/      @quanganh2302
+/src/backend/src/main/java/vn/ehoso/catalog/        @quanganh2302
+/src/backend/src/main/resources/db/                 @quanganh2302
+/src/backend/src/test/java/vn/ehoso/dossier/        @quanganh2302
+/src/backend/src/test/java/vn/ehoso/file/           @quanganh2302
+/src/backend/src/test/java/vn/ehoso/notification/   @quanganh2302
+/src/backend/src/test/java/vn/ehoso/audit/          @quanganh2302
+/src/backend/src/test/java/vn/ehoso/dashboard/      @quanganh2302
+/src/backend/src/test/java/vn/ehoso/catalog/        @quanganh2302
+
+# Frontend
+/src/frontend/                      @dovanphuong99a0-cmd
+
+# CI, hạ tầng, công cụ RTM và chỉ số (QA + DevOps)
+/.github/                           @maixuandat08
+/scripts/                           @maixuandat08
+/tools/                             @maixuandat08
+/Makefile                           @maixuandat08
+/docker-compose.yml                 @maixuandat08 @KhangHandome
+/.claude/                           @maixuandat08
+
+# Chính tệp này: PM, Tech Lead đồng duyệt
+/.github/CODEOWNERS                 @cachuabi @KhangHandome
