@@ -1,0 +1,128 @@
+@startuml 13_erd
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam linetype ortho
+hide circle
+title ERD e-HoSo (DR-01 đến DR-08 và bảng bổ sung) – cột chính
+left to right direction
+entity "app_user\n(DR-01)" as u {
+  *id : uuid <<PK>>
+  --
+  *email : varchar <<UQ>>
+  national_id : char(12) <<UQ>>
+  *password_hash, *role, *status
+  failed_logins, locked_until
+  failed_approvals, approval_locked_until
+}
+entity "auth_token" as t {
+  *id : uuid <<PK>>
+  --
+  *user_id <<FK>>
+  *purpose, *token_hash <<UQ>>
+  *expires_at, used_at
+}
+entity "procedure\n(DR-02)" as p {
+  *id : uuid <<PK>>
+  --
+  *code <<UQ>>, *name
+  *deadline_unit, deadline_days
+  applies_15h_cutoff, allows_verification
+  requires_original_check
+  result_validity_months
+  *form_schema : jsonb
+}
+entity "dossier_component\n(DR-03)" as c {
+  *id : uuid <<PK>>
+  --
+  *procedure_id <<FK>>
+  *name, *requirement, *allowed_types
+}
+entity "dossier\n(DR-04)" as d {
+  *id : uuid <<PK>>
+  --
+  reference_code <<UQ>>, dossier_code <<UQ>>
+  *procedure_id <<FK>>
+  *applicant_id <<FK>>
+  assigned_officer_id <<FK>>
+  *form_data : jsonb, *status
+  submitted_at, accepted_at, due_at
+  result_at, returned_at
+  verification_flag, verification_place
+  supplement_count, original_checked
+  review_opinion, result_kind
+  result_expires_on, return_method
+  *version : bigint
+}
+entity "attachment\n(DR-05)" as a {
+  *id : uuid <<PK>>
+  --
+  *dossier_id <<FK>>
+  component_id <<FK>>
+  *kind, *file_name, *mime_type
+  *size_bytes, *storage_key <<UQ>>
+  *uploaded_by <<FK>>
+}
+entity "processing_log\n(DR-06, chỉ thêm)" as l {
+  *id : bigint <<PK>>
+  --
+  *dossier_id <<FK>>
+  *actor_id <<FK>>
+  *actor_role, *action
+  from_status, *to_status
+  note, *occurred_at
+}
+entity "holiday\n(DR-07)" as h {
+  *day : date <<PK>>
+  --
+  *type, description
+}
+entity "notification\n(DR-08)" as n {
+  *id : uuid <<PK>>
+  --
+  dossier_id <<FK>>
+  *recipient_email, *type, payload
+  *status, *attempts, *next_attempt_at
+  last_error, sent_at
+}
+entity "supplement_request" as sr {
+  *id : uuid <<PK>>
+  --
+  *dossier_id <<FK>>
+  *instruction, *requested_by <<FK>>
+}
+entity "supplement_item" as si {
+  *id : uuid <<PK>>
+  --
+  *request_id <<FK>>
+  *component_id <<FK>>, note
+}
+entity "admin_audit_log\n(chỉ thêm)" as al {
+  *id : bigint <<PK>>
+  --
+  *actor_id <<FK>>
+  *action, target_user_id <<FK>>
+  note, *occurred_at
+}
+entity "dossier_code_counter" as cc {
+  *code_date : date <<PK>>
+  --
+  *last_seq : int
+}
+u ||--o{ t
+u ||--o{ d
+u |o--o{ d
+u ||--o{ l
+u ||--o{ al
+p ||--|{ c
+p ||--o{ d
+d ||--o{ a
+c |o--o{ a
+d ||--o{ l
+d |o--o{ n
+d ||--o{ sr
+sr ||--|{ si
+c ||--o{ si
+@enduml

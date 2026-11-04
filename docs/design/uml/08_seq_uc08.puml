@@ -1,0 +1,64 @@
+@startuml 08_seq_uc08
+skinparam shadowing false
+skinparam maxMessageSize 165
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title UC-08 Tiếp nhận hồ sơ (FR-15, 16, 17, 14, 23; BR-01, 02, 03, 09)
+autonumber
+hide footbox
+actor "CBMC" as U
+participant "SPA" as F
+participant "WorkflowController" as C
+participant "IntakeService" as S
+participant "DeadlineCalculator" as T
+participant "DossierCodeGenerator" as G
+participant "DossierLifecycle" as L
+database "PostgreSQL" as D
+U -> F : mở hàng đợi
+F -> C : GET /staff/dossiers?status=SUBMITTED
+C --> F : danh sách, cũ trước (FR-15)
+U -> F : chọn thao tác
+alt Tiếp nhận
+  F -> C : POST /staff/dossiers/{id}/accept
+  C -> S : accept(id, originalChecked)
+  alt Chứng thực mà chưa đối chiếu bản chính
+    S --> F : 422 (FR-16)
+  else Hợp lệ
+    group Một giao dịch (NFR-05)
+      S -> T : dueAt(thủ tục, thời điểm hiện tại)
+      T -> D : đọc cấu hình thủ tục, ngày nghỉ
+      T --> S : hạn trả theo BR-02, BR-03
+      S -> G : next(ngày tiếp nhận)
+      G -> D : INSERT .. ON CONFLICT DO UPDATE\nlast_seq + 1 RETURNING
+      G --> S : HS-YYMMDD-NNNN
+      S -> L : apply(ACCEPT)
+      L -> D : UPDATE (kiểm tra version), INSERT nhật ký,\nINSERT thông báo
+    end
+    S --> F : 200; mở trang in phiếu hẹn trả
+  end
+else Yêu cầu bổ sung (3a)
+  F -> C : POST /staff/dossiers/{id}/request-supplement
+  C -> S : requestSupplement(items, hướng dẫn)
+  group Một giao dịch
+    S -> D : INSERT yêu cầu và từng thành phần thiếu,\nsố lần bổ sung + 1 (BR-09)
+    S -> L : apply(REQUEST_SUPPLEMENT)
+    L -> D : UPDATE, INSERT nhật ký, INSERT thông báo
+  end
+  S --> F : 200
+else Từ chối tiếp nhận (3b)
+  F -> C : POST /staff/dossiers/{id}/reject
+  C -> S : reject(lý do bắt buộc)
+  S -> L : apply(REJECT)
+  L -> D : UPDATE, INSERT nhật ký, INSERT thông báo
+  S --> F : 200
+end
+note over C, D
+  Luồng 3c: nếu người dân vừa rút, trạng thái không còn SUBMITTED hoặc version đã đổi:
+  trả 409 kèm trạng thái hiện tại, không thay đổi dữ liệu.
+end note
+@enduml

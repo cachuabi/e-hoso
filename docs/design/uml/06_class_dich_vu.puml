@@ -1,0 +1,111 @@
+@startuml 06_class_dich_vu
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Lớp dịch vụ và cổng chính (Logical viewpoint) – luồng xử lý hồ sơ
+hide empty fields
+left to right direction
+skinparam nodesep 25
+skinparam ranksep 60
+package dossier {
+  class DossierController
+  class DossierService {
+    +saveDraft(cmd): Dossier
+    +submit(id, actor): Dossier
+    +resubmit(id, actor): Dossier
+    +withdraw(id, actor): Dossier
+    +lookup(code, last4): PublicStatus
+  }
+  class DossierLifecycle {
+    -ALLOWED: Map<(Status, Action), Status>
+    +apply(dossier, action, actor, note): void
+  }
+}
+package workflow {
+  class WorkflowController
+  class IntakeService {
+    +accept(id, originalChecked, actor)
+    +requestSupplement(id, items, actor)
+    +reject(id, reason, actor)
+    +assign(id, officerId, actor)
+    +returnResult(id, method, actor)
+  }
+  class ReviewService {
+    +markVerification(id, place, actor)
+    +submitForApproval(id, opinion, kind, actor)
+  }
+  class ApprovalService {
+    +approve(id, password, actor)
+    +sendBack(id, reason, actor)
+  }
+  class DeadlineCalculator {
+    +dueAt(procedure, acceptedAt): OffsetDateTime
+    +extend(dueAt, days): OffsetDateTime
+  }
+  class DossierCodeGenerator {
+    +next(date): String
+  }
+}
+package catalog {
+  class WorkingCalendar {
+    +isWorkingDay(date): boolean
+    +nextWorkingDay(date): LocalDate
+  }
+}
+package file {
+  interface FileStoragePort {
+    +put(key, stream, size, type)
+    +delete(key)
+    +presignGet(key, ttl): URL
+  }
+  class S3FileStorage
+  class AttachmentService {
+    +upload(dossierId, componentId, file, actor)
+    +downloadUrl(attachmentId, actor): SignedUrl
+  }
+  interface AttachmentGuard {
+    +checkUpload(dossierId, actor)
+    +checkDownload(attachment, actor)
+  }
+  class FileTypeSniffer {
+    +detect(head): MimeType
+  }
+}
+package audit {
+  class AuditWriter {
+    +append(dossier, action, from, to, actor, note)
+  }
+}
+package notification {
+  class NotificationQueue {
+    +enqueue(dossier, type)
+  }
+  class NotificationDispatcher {
+    +dispatchPending(): @Scheduled
+  }
+}
+DossierController --> DossierService
+WorkflowController --> IntakeService
+WorkflowController --> ReviewService
+WorkflowController --> ApprovalService
+DossierService --> DossierLifecycle
+IntakeService --> DossierLifecycle
+ReviewService --> DossierLifecycle
+ApprovalService --> DossierLifecycle
+IntakeService --> DeadlineCalculator
+IntakeService --> DossierCodeGenerator
+ReviewService --> DeadlineCalculator
+DeadlineCalculator --> WorkingCalendar
+DossierLifecycle --> AuditWriter
+DossierLifecycle --> NotificationQueue
+AttachmentService --> FileStoragePort
+AttachmentService --> FileTypeSniffer
+S3FileStorage ..|> FileStoragePort
+AttachmentService --> AttachmentGuard
+DossierService ..|> AttachmentGuard
+@enduml

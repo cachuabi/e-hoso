@@ -1,0 +1,129 @@
+@startuml 05_class_mien
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Mô hình miền (Logical viewpoint) – bổ sung ngoài DR-01→08 đánh dấu <<bổ sung>>
+hide empty methods
+left to right direction
+enum DossierStatus {
+  DRAFT
+  SUBMITTED
+  NEED_SUPPLEMENT
+  REJECTED
+  WITHDRAWN
+  ACCEPTED
+  IN_PROGRESS
+  PENDING_APPROVAL
+  APPROVED
+  RETURNED
+}
+enum Role {
+  CITIZEN
+  CBMC
+  CCTP
+  LEADER
+  ADMIN
+}
+class User <<DR-01>> {
+  id: UUID
+  fullName, email, phone
+  nationalId: String[12]
+  passwordHash: String
+  role: Role
+  status: PENDING | ACTIVE | LOCKED
+  failedLogins, lockedUntil
+  failedApprovals, approvalLockedUntil
+}
+class Procedure <<DR-02>> {
+  code, name
+  deadlineUnit: SAME_DAY | WORKING_DAYS
+  deadlineDays: int
+  applies15hCutoff: boolean
+  allowsVerification: boolean
+  resultValidityMonths: Integer
+  requiresOriginalCheck: boolean
+  formSchema: JSON
+  documentsToPresent: text
+}
+class DossierComponent <<DR-03>> {
+  name
+  requirement: REQUIRED | CONDITIONAL
+  allowedTypes
+}
+class Dossier <<DR-04>> {
+  id: UUID
+  referenceCode: TC-xxxxxxxx
+  dossierCode: HS-YYMMDD-NNNN
+  formData: JSON
+  status: DossierStatus
+  submittedAt, acceptedAt
+  dueAt, resultAt, returnedAt
+  verificationFlag: boolean
+  verificationPlace
+  supplementCount: int
+  originalChecked: boolean
+  reviewOpinion
+  resultKind: ISSUED | REFUSED
+  resultExpiresOn
+  returnMethod: COUNTER | ELECTRONIC
+  version: long
+}
+class Attachment <<DR-05>> {
+  fileName, mimeType, sizeBytes
+  storageKey
+  kind: DOSSIER | DRAFT | RESULT
+}
+class ProcessingLog <<DR-06, chỉ thêm>> {
+  actorRole, action
+  fromStatus, toStatus
+  note, occurredAt
+}
+class Holiday <<DR-07>> {
+  date
+  type: HOLIDAY | MAKEUP_WORKDAY
+  description
+}
+class Notification <<DR-08>> {
+  type, recipientEmail
+  status: PENDING | SENT | FAILED
+  attempts: int
+  lastError, sentAt
+}
+class SupplementRequest <<bổ sung>> {
+  instruction, createdAt
+}
+class SupplementItem <<bổ sung>> {
+  note
+}
+class AuthToken <<bổ sung>> {
+  purpose: VERIFY | RESET | REFRESH
+  tokenHash, expiresAt, usedAt
+}
+class DossierCodeCounter <<bổ sung>> {
+  codeDate, lastSeq
+}
+class AdminAuditLog <<bổ sung, chỉ thêm>> {
+  action, targetUser, occurredAt
+}
+Procedure "1" *-- "1..*" DossierComponent
+Procedure "1" <-- "0..*" Dossier
+User "1" <-- "0..*" Dossier : người nộp
+User "0..1" <-- "0..*" Dossier : CCTP được giao
+Dossier "1" *-- "0..*" Attachment
+DossierComponent "0..1" <-- "0..*" Attachment
+Dossier "1" *-- "0..*" ProcessingLog
+User "1" <-- "0..*" ProcessingLog : người thực hiện
+Dossier "0..1" <-- "0..*" Notification
+Dossier "1" *-- "0..*" SupplementRequest
+SupplementRequest "1" *-- "1..*" SupplementItem
+DossierComponent "1" <-- "0..*" SupplementItem
+User "1" *-- "0..*" AuthToken
+User "1" <-- "0..*" AdminAuditLog
+Dossier --> DossierStatus
+User --> Role
+@enduml

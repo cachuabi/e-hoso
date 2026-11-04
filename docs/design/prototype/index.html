@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>e-HoSo – Prototype giao diện</title>
+<style>
+:root{--ink:#1c2733;--muted:#51606f;--line:#cfd7df;--bg:#f4f6f8;--card:#fff;--brand:#0b4f8a;--brand-d:#083c69;--ok:#14663a;--ok-b:#e3f4ea;--warn:#7a4b00;--warn-b:#fdf1d8;--bad:#a11d1d;--bad-b:#fde6e6;--info:#0b4f8a;--info-b:#e5eff8}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+a{color:var(--brand)}:focus-visible{outline:3px solid #f0a500;outline-offset:2px}
+header{background:var(--brand);color:#fff;padding:10px 16px}header strong{font-size:18px}header small{display:block;opacity:.9}
+.demo{background:#102a43;color:#fff;padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px}
+.demo label{font-weight:600}.demo select{font:inherit;padding:4px;max-width:100%}
+nav{background:var(--card);border-bottom:1px solid var(--line);padding:0 16px;display:flex;flex-wrap:wrap;gap:4px 16px}
+nav a{display:inline-block;padding:10px 0;text-decoration:none;font-weight:600}nav a[aria-current=page]{border-bottom:3px solid var(--brand)}
+main{max-width:1000px;margin:0 auto;padding:16px}
+section[hidden]{display:none}h1{font-size:22px;margin:4px 0 12px}h2{font-size:17px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.muted{color:var(--muted);font-size:14px}
+.btn{display:inline-block;background:var(--brand);color:#fff;border:1px solid var(--brand);border-radius:6px;padding:9px 14px;font:inherit;font-weight:600;text-decoration:none;cursor:pointer;min-height:44px}
+.btn:hover{background:var(--brand-d)}.btn.alt{background:#fff;color:var(--brand)}.btn.bad{background:var(--bad);border-color:var(--bad)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.field{margin-bottom:12px}.field label{display:block;font-weight:600;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;font:inherit;padding:9px;border:1px solid #7d8b99;border-radius:6px;background:#fff}
+.req{color:var(--bad)}.hint{font-size:14px;color:var(--muted)}.check{display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}.check input{width:20px;height:20px;margin-top:2px;flex:none}
+.tag{display:inline-block;justify-self:start;padding:1px 8px;border-radius:12px;font-size:13px;font-weight:600;border:1px solid currentColor;white-space:nowrap}
+.ok{color:var(--ok);background:var(--ok-b)}.warn{color:var(--warn);background:var(--warn-b)}.bad-t{color:var(--bad);background:var(--bad-b)}.info{color:var(--info);background:var(--info-b)}
+.alert{border-left:4px solid var(--warn);background:var(--warn-b);padding:10px 12px;border-radius:4px;margin-bottom:12px}
+.done{border-left-color:var(--ok);background:var(--ok-b)}
+table{width:100%;border-collapse:collapse;background:var(--card)}th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}th{background:#e8edf3;font-size:14px}
+ol.time{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line)}ol.time li{margin-bottom:8px}
+.kpi{font-size:28px;font-weight:700;line-height:1.2}.bar{height:12px;background:#dfe5ea;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--brand)}
+.receipt{max-width:440px;border:1px dashed #7d8b99;padding:14px;background:#fff}
+dl{display:grid;grid-template-columns:minmax(110px,35%) 1fr;gap:4px 10px;margin:0}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}
+@media(max-width:640px){
+ table.rs thead{position:absolute;left:-9999px}table.rs,table.rs tbody,table.rs tr,table.rs td{display:block;width:100%}
+ table.rs tr{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:var(--card);padding:6px 0}
+ table.rs td{border:0;padding:3px 10px;display:grid;grid-template-columns:42% 1fr;gap:8px;overflow-wrap:anywhere}table.rs td::before{content:attr(data-th);font-weight:600;color:var(--muted);font-size:14px}
+ .btn{width:100%;text-align:center}.acts .btn{flex:1 1 100%}
+}
+@media print{header,.demo,nav,.acts{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<header><strong>e-HoSo</strong><small>UBND xã Minh Hoạ – Hồ sơ hành chính trực tuyến</small></header>
+<div class="demo"><label for="role">Xem theo vai trò (chỉ có ở prototype):</label>
+<select id="role"><option value="dan">Người dân</option><option value="cbmc">Cán bộ một cửa</option><option value="cctp">Công chức tư pháp – hộ tịch</option><option value="ld">Lãnh đạo UBND xã</option></select></div>
+<nav id="menu" aria-label="Điều hướng chính"></nav>
+<main>
+<section id="thu-tuc"><h1>Danh mục thủ tục</h1><div class="grid">
+ <div class="card"><h2>Chứng thực bản sao từ bản chính</h2><p class="muted">Giải quyết trong ngày. Mang bản chính đến bộ phận một cửa để đối chiếu.</p><div class="acts"><a class="btn" href="#tao-ho-so">Nộp hồ sơ</a></div></div>
+ <div class="card"><h2>Đăng ký khai sinh</h2><p class="muted">Giải quyết trong ngày. Có biểu mẫu điện tử riêng.</p><div class="acts"><a class="btn" href="#tao-ho-so">Nộp hồ sơ</a></div></div>
+ <div class="card"><h2>Xác nhận tình trạng hôn nhân</h2><p class="muted">3 ngày làm việc; có thể gia hạn nếu cần xác minh.</p><div class="acts"><a class="btn" href="#tao-ho-so">Nộp hồ sơ</a></div></div>
+</div></section>
+
+<section id="tra-cuu"><h1>Tra cứu hồ sơ</h1><div class="card"><form onsubmit="return false">
+ <div class="field"><label for="m">Mã tham chiếu hoặc mã hồ sơ <span class="req">*</span></label><input id="m" value="HS-261104-0007"></div>
+ <div class="field"><label for="l4">4 số cuối số định danh <span class="req">*</span></label><input id="l4" inputmode="numeric" maxlength="4" value="1234"></div>
+ <button class="btn">Tra cứu</button></form></div>
+ <div class="card"><h2>Kết quả</h2><dl><dt>Thủ tục</dt><dd>Xác nhận tình trạng hôn nhân</dd><dt>Trạng thái</dt><dd><span class="tag info">Đang xử lý</span></dd><dt>Ngày hẹn trả</dt><dd>17:00, 09/11/2026</dd></dl><p class="muted">Kết quả không hiển thị thông tin cá nhân.</p></div></section>
+
+<section id="ho-so-cua-toi"><h1>Hồ sơ của tôi</h1>
+ <div class="field"><label for="lf">Lọc theo trạng thái</label><select id="lf"><option>Tất cả</option><option>Chờ bổ sung</option><option>Đang xử lý</option></select></div>
+ <table class="rs"><thead><tr><th>Mã</th><th>Thủ tục</th><th>Trạng thái</th><th>Hẹn trả</th><th>Thao tác</th></tr></thead><tbody>
+ <tr><td data-th="Mã">TC-7K2M9QXA</td><td data-th="Thủ tục">Đăng ký khai sinh</td><td data-th="Trạng thái"><span class="tag warn">Chờ bổ sung</span></td><td data-th="Hẹn trả">–</td><td data-th="Thao tác"><a href="#bo-sung">Bổ sung</a></td></tr>
+ <tr><td data-th="Mã">HS-261104-0007</td><td data-th="Thủ tục">Xác nhận tình trạng hôn nhân</td><td data-th="Trạng thái"><span class="tag info">Đang xử lý</span></td><td data-th="Hẹn trả">09/11/2026</td><td data-th="Thao tác"><a href="#tra-cuu">Xem</a></td></tr>
+ <tr><td data-th="Mã">HS-261103-0012</td><td data-th="Thủ tục">Chứng thực bản sao</td><td data-th="Trạng thái"><span class="tag ok">Đã trả kết quả</span></td><td data-th="Hẹn trả">03/11/2026</td><td data-th="Thao tác"><a href="#ho-so-cua-toi">Tải kết quả</a></td></tr>
+ </tbody></table></section>
+
+<section id="tao-ho-so"><h1>Nộp hồ sơ: Chứng thực bản sao</h1><form class="card" onsubmit="return false">
+ <div class="field"><label for="ht">Họ và tên người yêu cầu <span class="req">*</span></label><input id="ht" value="Nguyễn Văn A"></div>
+ <div class="field"><label for="sl">Số bản cần chứng thực <span class="req">*</span></label><input id="sl" type="number" min="1" value="2"></div>
+ <div class="field"><label for="f1">Bản sao cần chứng thực <span class="req">*</span></label><input id="f1" type="file" accept=".pdf,.jpg,.jpeg,.png"><div class="hint">PDF, JPG, PNG; mỗi tệp tối đa 10 MB, cả hồ sơ tối đa 30 MB.</div></div>
+ <div class="alert">Bạn cần mang bản chính đến bộ phận một cửa để đối chiếu trước khi hồ sơ được tiếp nhận.</div>
+ <div class="acts"><a class="btn" href="#nop-xong">Nộp hồ sơ</a><button class="btn alt">Lưu nháp</button></div></form></section>
+
+<section id="nop-xong"><h1>Đã nộp hồ sơ</h1><div class="alert done">Hồ sơ đã được nộp. Mã tham chiếu của bạn là <strong>TC-7K2M9QXA</strong>. Email xác nhận đã được gửi.</div><div class="acts"><a class="btn" href="#ho-so-cua-toi">Xem hồ sơ của tôi</a></div></section>
+
+<section id="bo-sung"><h1>Bổ sung hồ sơ TC-7K2M9QXA</h1>
+ <div class="alert"><strong>Cần bổ sung:</strong> Giấy chứng sinh. Ảnh chụp bị mờ, vui lòng chụp lại rõ nét.</div>
+ <form class="card" onsubmit="return false"><div class="field"><label for="f2">Giấy chứng sinh <span class="req">*</span></label><input id="f2" type="file" accept=".pdf,.jpg,.jpeg,.png"></div>
+ <div class="acts"><button class="btn">Nộp lại</button><button class="btn alt">Rút hồ sơ</button></div></form></section>
+
+<section id="hang-doi"><h1>Hàng đợi tiếp nhận</h1><p class="muted">Sắp xếp theo thời điểm nộp, cũ trước.</p>
+ <table class="rs"><thead><tr><th>Mã tham chiếu</th><th>Thủ tục</th><th>Người nộp</th><th>Nộp lúc</th><th>Thao tác</th></tr></thead><tbody>
+ <tr><td data-th="Mã">TC-3HQ8ZP1B</td><td data-th="Thủ tục">Chứng thực bản sao</td><td data-th="Người nộp">Nguyễn Văn A</td><td data-th="Nộp lúc">08:12, 04/11</td><td data-th="Thao tác"><a href="#tiep-nhan">Xem xét</a></td></tr>
+ <tr><td data-th="Mã">TC-9LM2XC4T</td><td data-th="Thủ tục">Đăng ký khai sinh</td><td data-th="Người nộp">Trần Thị B</td><td data-th="Nộp lúc">09:40, 04/11</td><td data-th="Thao tác"><a href="#tiep-nhan">Xem xét</a></td></tr>
+ </tbody></table></section>
+
+<section id="tiep-nhan"><h1>Tiếp nhận hồ sơ TC-3HQ8ZP1B</h1>
+ <div class="card"><h2>Thông tin hồ sơ</h2><dl><dt>Thủ tục</dt><dd>Chứng thực bản sao</dd><dt>Người nộp</dt><dd>Nguyễn Văn A</dd><dt>Tệp</dt><dd><a href="#tiep-nhan">ban-sao-bang-tot-nghiep.pdf</a></dd></dl></div>
+ <form class="card" onsubmit="return false"><div class="check"><input type="checkbox" id="dc"><label for="dc">Đã đối chiếu bản sao với bản chính người dân mang đến (bắt buộc với thủ tục chứng thực)</label></div>
+ <div class="acts"><a class="btn" href="#phieu-hen">Tiếp nhận</a></div></form>
+ <form class="card" onsubmit="return false"><h2>Yêu cầu bổ sung</h2><div class="check"><input type="checkbox" id="tp"><label for="tp">Bản sao cần chứng thực</label></div><div class="field"><label for="hd">Hướng dẫn <span class="req">*</span></label><textarea id="hd" rows="2"></textarea></div><button class="btn alt">Gửi yêu cầu bổ sung</button></form>
+ <form class="card" onsubmit="return false"><h2>Từ chối tiếp nhận</h2><div class="field"><label for="ld1">Lý do <span class="req">*</span></label><textarea id="ld1" rows="2"></textarea></div><button class="btn bad">Từ chối</button></form></section>
+
+<section id="phieu-hen"><h1>Phiếu hẹn trả</h1><div class="receipt"><dl><dt>Mã hồ sơ</dt><dd>HS-261104-0008</dd><dt>Thủ tục</dt><dd>Chứng thực bản sao</dd><dt>Tiếp nhận</dt><dd>10:05, 04/11/2026</dd><dt>Hẹn trả</dt><dd><strong>17:00, 04/11/2026</strong></dd></dl></div><div class="acts"><button class="btn" onclick="window.print()">In phiếu</button><a class="btn alt" href="#phan-cong">Phân công CCTP</a></div></section>
+
+<section id="phan-cong"><h1>Phân công HS-261104-0008</h1><form class="card" onsubmit="return false"><div class="field"><label for="cc">Công chức xử lý <span class="req">*</span></label><select id="cc"><option>Lê Văn C (đang xử lý 3 hồ sơ)</option><option>Phạm Thị D (đang xử lý 5 hồ sơ)</option></select></div><button class="btn">Phân công</button></form></section>
+
+<section id="tra-ket-qua"><h1>Hồ sơ của bộ phận một cửa</h1>
+ <table class="rs"><thead><tr><th>Mã hồ sơ</th><th>Trạng thái</th><th>Hạn xử lý</th><th>Thao tác</th></tr></thead><tbody>
+ <tr><td data-th="Mã">HS-261104-0003</td><td data-th="Trạng thái"><span class="tag ok">Đã có kết quả</span></td><td data-th="Hạn xử lý">–</td><td data-th="Thao tác"><label for="ht1">Hình thức trả</label><select id="ht1"><option>Tại bộ phận một cửa</option><option>Bản điện tử</option></select> <button class="btn alt">Trả kết quả</button></td></tr>
+ <tr><td data-th="Mã">HS-261104-0005</td><td data-th="Trạng thái"><span class="tag info">Đang xử lý</span></td><td data-th="Hạn xử lý"><span class="tag bad-t">Quá hạn</span></td><td data-th="Thao tác">–</td></tr>
+ </tbody></table></section>
+
+<section id="duoc-giao"><h1>Hồ sơ được giao</h1>
+ <table class="rs"><thead><tr><th>Mã hồ sơ</th><th>Thủ tục</th><th>Hẹn trả</th><th>Hạn xử lý</th><th>Thao tác</th></tr></thead><tbody>
+ <tr><td data-th="Mã">HS-261104-0007</td><td data-th="Thủ tục">Xác nhận tình trạng hôn nhân</td><td data-th="Hẹn trả">17:00, 09/11</td><td data-th="Hạn xử lý"><span class="tag ok">Còn hạn</span></td><td data-th="Thao tác"><a href="#tham-dinh">Thẩm định</a></td></tr>
+ <tr><td data-th="Mã">HS-261104-0002</td><td data-th="Thủ tục">Đăng ký khai sinh</td><td data-th="Hẹn trả">17:00, 04/11</td><td data-th="Hạn xử lý"><span class="tag warn">Sắp đến hạn</span></td><td data-th="Thao tác"><a href="#tham-dinh">Thẩm định</a></td></tr>
+ </tbody></table></section>
+
+<section id="tham-dinh"><h1>Thẩm định HS-261104-0007</h1>
+ <form class="card" onsubmit="return false"><div class="field"><label for="yk">Ý kiến thẩm định <span class="req">*</span></label><textarea id="yk" rows="3"></textarea></div>
+ <div class="field"><label for="kq">Loại kết quả <span class="req">*</span></label><select id="kq"><option>Cấp giấy</option><option>Từ chối giải quyết</option></select></div>
+ <div class="field"><label for="dt">Dự thảo kết quả (PDF) <span class="req">*</span></label><input id="dt" type="file" accept=".pdf"></div><button class="btn">Trình phê duyệt</button></form>
+ <form class="card" onsubmit="return false"><h2>Cần xác minh</h2><p class="muted">Cộng 3 ngày làm việc vào ngày hẹn trả, chỉ một lần. Hạn mới dự kiến: 17:00, 12/11/2026.</p><div class="field"><label for="nx">Nơi xác minh <span class="req">*</span></label><input id="nx"></div><button class="btn alt">Đánh dấu cần xác minh</button></form></section>
+
+<section id="cho-duyet"><h1>Hồ sơ chờ phê duyệt</h1>
+ <table class="rs"><thead><tr><th>Mã hồ sơ</th><th>Thủ tục</th><th>CCTP</th><th>Hạn xử lý</th><th>Thao tác</th></tr></thead><tbody>
+ <tr><td data-th="Mã">HS-261104-0007</td><td data-th="Thủ tục">Xác nhận tình trạng hôn nhân</td><td data-th="CCTP">Lê Văn C</td><td data-th="Hạn xử lý"><span class="tag ok">Còn hạn</span></td><td data-th="Thao tác"><a href="#phe-duyet">Xem xét</a></td></tr>
+ </tbody></table></section>
+
+<section id="phe-duyet"><h1>Phê duyệt HS-261104-0007</h1>
+ <div class="card"><h2>Nội dung trình</h2><dl><dt>Ý kiến</dt><dd>Hồ sơ hợp lệ, đề nghị cấp giấy.</dd><dt>Dự thảo</dt><dd><a href="#phe-duyet">du-thao-ket-qua.pdf</a></dd></dl></div>
+ <form class="card" onsubmit="return false"><div class="field"><label for="mk">Nhập lại mật khẩu để ký mô phỏng <span class="req">*</span></label><input id="mk" type="password" autocomplete="current-password"></div><button class="btn">Phê duyệt</button></form>
+ <form class="card" onsubmit="return false"><div class="field"><label for="ld2">Lý do trả lại <span class="req">*</span></label><textarea id="ld2" rows="2"></textarea></div><button class="btn alt">Trả lại cho CCTP</button></form></section>
+
+<section id="dashboard"><h1>Dashboard</h1>
+ <p class="muted"><strong>Số liệu minh hoạ, không phải dữ liệu thật.</strong></p>
+ <form class="card" onsubmit="return false"><div class="grid"><div class="field"><label for="tu">Từ ngày</label><input id="tu" type="date" value="2026-11-01"></div><div class="field"><label for="den">Đến ngày</label><input id="den" type="date" value="2026-11-30"></div></div><div class="acts"><button class="btn alt">Xuất CSV</button></div></form>
+ <div class="grid"><div class="card"><div class="muted">Hồ sơ đang xử lý</div><div class="kpi">24</div></div><div class="card"><div class="muted">Đúng hạn</div><div class="kpi">18</div></div><div class="card"><div class="muted">Trễ hạn</div><div class="kpi">2</div></div><div class="card"><div class="muted">Đang quá hạn</div><div class="kpi">3</div></div></div>
+ <div class="card"><h2>Tỷ lệ đúng hạn theo thủ tục</h2>
+ <p>Chứng thực bản sao: 95%</p><div class="bar"><i style="width:95%"></i></div><p>Đăng ký khai sinh: 88%</p><div class="bar"><i style="width:88%"></i></div><p>Xác nhận tình trạng hôn nhân: 80%</p><div class="bar"><i style="width:80%"></i></div></div></section>
+</main>
+<script>
+var MENU={dan:[["thu-tuc","Thủ tục"],["tra-cuu","Tra cứu"],["ho-so-cua-toi","Hồ sơ của tôi"]],cbmc:[["hang-doi","Hàng đợi"],["tra-ket-qua","Hồ sơ, trả kết quả"]],cctp:[["duoc-giao","Hồ sơ được giao"]],ld:[["cho-duyet","Chờ phê duyệt"],["dashboard","Dashboard"]]};
+var OWNER={"tao-ho-so":"dan","nop-xong":"dan","bo-sung":"dan","tiep-nhan":"cbmc","phieu-hen":"cbmc","phan-cong":"cbmc","tham-dinh":"cctp","phe-duyet":"ld"};
+var sel=document.getElementById("role"),nav=document.getElementById("menu");
+function roleOf(id){if(OWNER[id])return OWNER[id];for(var r in MENU)if(MENU[r].some(function(m){return m[0]===id}))return r;return null}
+function render(){var id=location.hash.slice(1)||"thu-tuc";if(!document.getElementById(id))id="thu-tuc";var r=roleOf(id)||sel.value;sel.value=r;
+ nav.innerHTML=MENU[r].map(function(m){return'<a href="#'+m[0]+'"'+(m[0]===id?' aria-current="page"':'')+'>'+m[1]+'</a>'}).join("");
+ document.querySelectorAll("main section").forEach(function(s){s.hidden=s.id!==id});window.scrollTo(0,0)}
+sel.addEventListener("change",function(){location.hash=MENU[sel.value][0][0]});addEventListener("hashchange",render);render();
+</script>
+</body>
+</html>
