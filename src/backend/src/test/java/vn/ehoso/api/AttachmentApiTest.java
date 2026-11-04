@@ -63,7 +63,7 @@ class AttachmentApiTest extends IntegrationTest {
       upload(citizen, dossierId, "DOSSIER", component, "a.pdf", pdf(10 * MEGABYTE))
           .andExpect(status().isCreated());
     }
-    upload(citizen, dossierId, "DOSSIER", component, "b.pdf", pdf(1))
+    upload(citizen, dossierId, "DOSSIER", component, "b.pdf", pdf(100))
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.code").value("DOSSIER_TOO_LARGE"));
   }

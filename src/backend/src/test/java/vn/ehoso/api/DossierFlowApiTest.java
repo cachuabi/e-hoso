@@ -204,7 +204,7 @@ class DossierFlowApiTest extends IntegrationTest {
             Map.of("originalChecked", false, "version", version(cbmc, STAFF + id)))
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.code").value("ORIGINAL_NOT_CHECKED"));
-    doPost(cbmc, STAFF + id + "/reject", Map.of("reason", " ", "version", 1))
+    doPost(cbmc, STAFF + id + "/reject", Map.of("reason", " ", "version", 99))
         .andExpect(status().isConflict());
     doPost(
             cbmc,
