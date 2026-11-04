@@ -135,8 +135,17 @@ for (const code of Object.keys(FORMS)) {
     expect((await request.get(resultLink.url)).status()).toBe(200);
 
     // FR-14: Mailpit received the citizen's emails.
-    const mail = await request.get('http://localhost:8025/api/v1/search?query=to:dan@ehoso.local');
-    await expect.poll(async () => (await mail.json()).total, { timeout: 15_000 }).toBeGreaterThan(0);
+    await expect
+      .poll(
+        async () => {
+          const mail = await request.get(
+            'http://localhost:8025/api/v1/search?query=to:dan@ehoso.local',
+          );
+          return (await mail.json()).total;
+        },
+        { timeout: 30_000 },
+      )
+      .toBeGreaterThan(0);
   });
 }
 
