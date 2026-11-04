@@ -1,10 +1,9 @@
 package vn.ehoso;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import vn.ehoso.support.IntegrationTest;
 
-@SpringBootTest
-class EhosoBackendApplicationTests {
+class EhosoBackendApplicationTests extends IntegrationTest {
 
   @Test
   void contextLoads() {
