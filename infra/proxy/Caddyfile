@@ -16,6 +16,10 @@
 {$SITE_HOST:localhost}:9443 {
 	tls internal
 	@read method GET HEAD
-	reverse_proxy @read storage:3900
-	respond 405
+	handle @read {
+		reverse_proxy storage:3900
+	}
+	handle {
+		respond 405
+	}
 }

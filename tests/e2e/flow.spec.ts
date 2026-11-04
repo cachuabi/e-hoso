@@ -82,6 +82,8 @@ for (const code of Object.keys(FORMS)) {
     expect(download.status()).toBe(200);
     expect((await download.body()).equals(PDF)).toBeTruthy();
     expect((await request.get(`${link.url}&tamper=1`)).status()).toBe(403);
+    expect((await request.post(link.url)).status()).toBe(405);
+    writeFileSync('k4-url.txt', link.url);
 
     await ok(await request.post(`/api/v1/dossiers/${id}/submit`, { ...auth(citizen), data: {} }));
     await ok(

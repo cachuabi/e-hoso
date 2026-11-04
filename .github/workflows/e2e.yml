@@ -34,6 +34,12 @@ jobs:
           docker run --rm --network host -v "$PWD/tests:/work" -w /work \
             mcr.microsoft.com/playwright:v1.56.1-noble \
             sh -c "npm install --no-audit --no-fund && npx playwright test"
+      - name: K4 – signed link expires after 5 minutes
+        run: |
+          sleep 310
+          CODE=$(curl -sk -o /dev/null -w '%{http_code}' "$(cat tests/k4-url.txt)")
+          echo "after expiry: $CODE" | tee k4-expiry.txt
+          test "$CODE" = "403"
       - name: K2 – memory after the flows
         run: docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' | tee k2-after.txt
       - name: K6 – restart keeps data (NFR-05), reset clears it
@@ -73,6 +79,7 @@ jobs:
           name: e2e-${{ matrix.runner }}
           path: |
             k2-*.txt
+            k4-*.txt
             k6-*
             perf.txt
             zap/
