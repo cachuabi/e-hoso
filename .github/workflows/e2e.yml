@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # the x64 job publishes its evidence to the "evidence" branch
 
 jobs:
   e2e:
@@ -73,6 +73,20 @@ jobs:
       - name: Logs on failure
         if: failure()
         run: docker compose logs --tail=200
+      - name: Publish evidence
+        if: always() && matrix.runner == 'ubuntu-24.04' && github.event.pull_request.head.repo.fork != true
+        continue-on-error: true
+        run: |
+          SHA=${{ github.event.pull_request.head.sha || github.sha }}
+          rm -rf /tmp/ev && mkdir -p /tmp/ev/$SHA
+          cp -r k2-*.txt k4-*.txt k6-* perf.txt zap tests/perf-summary.json tests/k5-upload-ms.txt tests/screenshots /tmp/ev/$SHA/ 2>/dev/null || true
+          cd /tmp/ev
+          git init -q -b evidence
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "evidence: E2E run for $SHA"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" evidence
       - uses: actions/upload-artifact@v7
         if: always()
         with:
