@@ -108,7 +108,8 @@ class AccountApiTest extends IntegrationTest {
   @Tag("NFR-03")
   void refreshTokenRotates() throws Exception {
     User user = user(Role.CITIZEN);
-    var cookie = login(user.getEmail(), PASSWORD).andReturn().getResponse().getCookie("ehoso_refresh");
+    var cookie =
+        login(user.getEmail(), PASSWORD).andReturn().getResponse().getCookie("ehoso_refresh");
     assertThat(cookie).isNotNull();
     assertThat(cookie.isHttpOnly()).isTrue();
     mvc.perform(

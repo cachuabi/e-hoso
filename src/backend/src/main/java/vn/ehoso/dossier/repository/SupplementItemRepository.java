@@ -7,5 +7,6 @@ import vn.ehoso.dossier.domain.SupplementItem;
 
 /** Access to supplement items. */
 public interface SupplementItemRepository extends JpaRepository<SupplementItem, UUID> {
+  /** Spring Data query. */
   List<SupplementItem> findByRequestId(UUID requestId);
 }

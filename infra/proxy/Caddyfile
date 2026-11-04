@@ -1,0 +1,21 @@
+# NFR-03: HTTPS with Caddy's internal CA. Browsers warn until that CA is trusted.
+{$SITE_HOST:localhost}:443 {
+	tls internal
+	encode gzip
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# Signed links only: the original Host and path stay intact, so the signature stays valid.
+{$SITE_HOST:localhost}:9443 {
+	tls internal
+	@read method GET HEAD
+	reverse_proxy @read storage:3900
+	respond 405
+}

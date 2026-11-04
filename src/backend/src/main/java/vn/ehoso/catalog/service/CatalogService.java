@@ -118,7 +118,9 @@ public class CatalogService {
   }
 
   private Procedure find(String code) {
-    return procedures.findByCode(code).orElseThrow(() -> ApiException.notFound("Không có thủ tục."));
+    return procedures
+        .findByCode(code)
+        .orElseThrow(() -> ApiException.notFound("Không có thủ tục."));
   }
 
   private ProcedureView view(Procedure p) {

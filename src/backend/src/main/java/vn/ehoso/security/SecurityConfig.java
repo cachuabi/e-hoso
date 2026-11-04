@@ -73,7 +73,8 @@ class SecurityConfig {
                         STAFF_DOSSIER + "assign",
                         STAFF_DOSSIER + "return-result")
                     .hasRole(CBMC)
-                    .requestMatchers(STAFF_DOSSIER + "verification", STAFF_DOSSIER + "submit-approval")
+                    .requestMatchers(
+                        STAFF_DOSSIER + "verification", STAFF_DOSSIER + "submit-approval")
                     .hasRole(CCTP)
                     .requestMatchers(STAFF_DOSSIER + "approve", STAFF_DOSSIER + "send-back")
                     .hasRole(LEADER)

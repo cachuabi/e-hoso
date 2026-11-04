@@ -7,5 +7,6 @@ import vn.ehoso.dossier.domain.SupplementRequest;
 
 /** Access to supplement requests. */
 public interface SupplementRequestRepository extends JpaRepository<SupplementRequest, UUID> {
+  /** Spring Data query. */
   Optional<SupplementRequest> findFirstByDossierIdOrderByCreatedAtDesc(UUID dossierId);
 }

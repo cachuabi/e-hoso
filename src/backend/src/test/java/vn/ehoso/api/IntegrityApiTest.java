@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -103,6 +102,7 @@ class IntegrityApiTest extends IntegrationTest {
     String cctp = login(officer);
     String onTime = processToPending(cbmc, cctp, officer.getId().toString());
     String late = processToPending(cbmc, cctp, officer.getId().toString());
+    assertThat(late).isNotEmpty();
     approve(leader, onTime);
     JsonNode queue =
         read(doGet(cctp, "/api/v1/staff/dossiers?status=PENDING_APPROVAL&deadlineLabel=ON_TIME"));
@@ -190,6 +190,5 @@ class IntegrityApiTest extends IntegrationTest {
             base + id + "/approve",
             Map.of("password", PASSWORD, "version", version(leader, base + id)))
         .andExpect(status().isOk());
-    assertThat(List.of(id)).isNotEmpty();
   }
 }

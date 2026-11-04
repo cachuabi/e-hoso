@@ -7,5 +7,6 @@ import vn.ehoso.catalog.domain.Procedure;
 
 /** Access to procedures. */
 public interface ProcedureRepository extends JpaRepository<Procedure, UUID> {
+  /** Spring Data query. */
   Optional<Procedure> findByCode(String code);
 }

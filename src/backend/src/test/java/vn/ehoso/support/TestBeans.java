@@ -25,10 +25,12 @@ public class TestBeans {
   public static class MutableClock extends Clock {
     private volatile Instant now = Instant.parse("2026-11-05T03:00:00Z");
 
+    /** Sets the time. */
     public void set(String iso) {
       now = java.time.OffsetDateTime.parse(iso).toInstant();
     }
 
+    /** Moves the time forward. */
     public void advance(Duration duration) {
       now = now.plus(duration);
     }

@@ -67,7 +67,8 @@ public class DashboardService {
     List<Dossier> finished =
         dossiers.findByResultAtGreaterThanEqualAndResultAtLessThan(start, end);
     Map<UUID, String> procedureNames =
-        procedures.findAll().stream().collect(Collectors.toMap(Procedure::getId, Procedure::getName));
+        procedures.findAll().stream()
+            .collect(Collectors.toMap(Procedure::getId, Procedure::getName));
     Map<UUID, String> officerNames =
         users.findAll().stream().collect(Collectors.toMap(User::getId, User::getFullName));
     return new Dashboard(

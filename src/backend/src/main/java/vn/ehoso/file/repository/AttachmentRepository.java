@@ -10,13 +10,17 @@ import vn.ehoso.file.domain.AttachmentKind;
 
 /** Access to attachment metadata. */
 public interface AttachmentRepository extends JpaRepository<Attachment, UUID> {
+  /** Spring Data query. */
   List<Attachment> findByDossierIdOrderByCreatedAtAsc(UUID dossierId);
 
+  /** Spring Data query. */
   Optional<Attachment> findFirstByDossierIdAndKindOrderByCreatedAtDesc(
       UUID dossierId, AttachmentKind kind);
 
+  /** Spring Data query. */
   boolean existsByDossierIdAndKind(UUID dossierId, AttachmentKind kind);
 
+  /** Spring Data query. */
   @Query("select coalesce(sum(a.sizeBytes), 0) from Attachment a where a.dossierId = :dossierId")
   long totalSize(UUID dossierId);
 }

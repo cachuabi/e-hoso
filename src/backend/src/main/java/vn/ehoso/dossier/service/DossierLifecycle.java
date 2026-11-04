@@ -109,7 +109,8 @@ public class DossierLifecycle {
   }
 
   /** Applies a transition, writes the log and queues the email in the caller's transaction. */
-  public void apply(Dossier dossier, DossierAction action, Actor actor, String note, String detail) {
+  public void apply(
+      Dossier dossier, DossierAction action, Actor actor, String note, String detail) {
     check(dossier, action);
     DossierStatus from = dossier.getStatus();
     DossierStatus to = ALLOWED.get(new Key(from, action));

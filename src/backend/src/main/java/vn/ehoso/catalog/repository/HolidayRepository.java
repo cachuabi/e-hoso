@@ -7,5 +7,6 @@ import vn.ehoso.catalog.domain.Holiday;
 
 /** Access to the holiday calendar. */
 public interface HolidayRepository extends JpaRepository<Holiday, LocalDate> {
+  /** Spring Data query. */
   List<Holiday> findAllByOrderByDayAsc();
 }

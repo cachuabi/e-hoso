@@ -152,7 +152,8 @@ class DossierFlowApiTest extends IntegrationTest {
     doPost(
             cbmc,
             STAFF + id + "/request-supplement",
-            Map.of("instruction", "Thiếu", "items", List.of(), "version", version(cbmc, STAFF + id)))
+            Map.of(
+                "instruction", "Thiếu", "items", List.of(), "version", version(cbmc, STAFF + id)))
         .andExpect(status().isUnprocessableEntity());
     doPost(
             cbmc,
@@ -259,11 +260,11 @@ class DossierFlowApiTest extends IntegrationTest {
   @Tag("FR-21")
   void wrongPasswordThreeTimesLocksApprovalAndSendBackNeedsReason() throws Exception {
     User boss = user(Role.LEADER);
-    String bossToken = login(boss);
     String id = submitted("KHAI_SINH");
     accept(id);
     assign(id);
     submitForApproval(id, "ISSUED");
+    String bossToken = login(boss);
     for (int i = 0; i < 3; i++) {
       doPost(
               bossToken,
@@ -337,6 +338,9 @@ class DossierFlowApiTest extends IntegrationTest {
   @Tag("FR-15")
   void listsAreScopedAndQueueIsOldestFirst() throws Exception {
     String first = submitted("KHAI_SINH");
+    doGet(citizenToken, "/api/v1/dossiers/" + first + "/history")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].status").value("SUBMITTED"));
     clock.advance(java.time.Duration.ofMinutes(5));
     String second = submitted("KHAI_SINH");
     JsonNode mine = read(doGet(citizenToken, "/api/v1/dossiers?status=SUBMITTED"));
@@ -349,9 +353,6 @@ class DossierFlowApiTest extends IntegrationTest {
             .get("items")
             .findValuesAsText("id");
     assertThat(queue.indexOf(first)).isLessThan(queue.indexOf(second));
-    doGet(citizenToken, "/api/v1/dossiers/" + first + "/history")
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].status").value("SUBMITTED"));
   }
 
   @Test

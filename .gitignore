@@ -8,3 +8,8 @@ __pycache__/
 .idea/
 .vscode/
 report.md
+tests/node_modules/
+tests/report/
+tests/test-results/
+tests/screenshots/
+tests/package-lock.json

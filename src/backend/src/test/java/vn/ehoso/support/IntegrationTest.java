@@ -95,23 +95,28 @@ public abstract class IntegrationTest {
     return "Bearer " + json.readTree(body).get("accessToken").asText();
   }
 
+  /** Serializes to JSON. */
   protected String toJson(Object value) throws Exception {
     return json.writeValueAsString(value);
   }
 
+  /** Parses the response body. */
   protected JsonNode read(ResultActions result) throws Exception {
     return json.readTree(result.andReturn().getResponse().getContentAsString());
   }
 
+  /** Sends a GET. */
   protected ResultActions doGet(String token, String url) throws Exception {
     return mvc.perform(auth(get(url), token));
   }
 
+  /** Sends a JSON POST. */
   protected ResultActions doPost(String token, String url, Object body) throws Exception {
     return mvc.perform(
         auth(post(url), token).contentType(MediaType.APPLICATION_JSON).content(toJson(body)));
   }
 
+  /** Sends a multipart upload. */
   protected ResultActions upload(
       String token, String dossierId, String kind, String componentId, String name, byte[] data)
       throws Exception {
@@ -143,6 +148,7 @@ public abstract class IntegrationTest {
     return id;
   }
 
+  /** Returns valid form data of a procedure. */
   protected Map<String, Object> validForm(String code) {
     return switch (code) {
       case "CHUNG_THUC" -> Map.of("hoTen", "Nguyễn Văn A", "tenGiayTo", "Bằng", "soBan", 2);
@@ -162,6 +168,7 @@ public abstract class IntegrationTest {
     };
   }
 
+  /** Reads the current version of a dossier. */
   protected long version(String token, String url) throws Exception {
     return read(doGet(token, url)).get("version").asLong();
   }

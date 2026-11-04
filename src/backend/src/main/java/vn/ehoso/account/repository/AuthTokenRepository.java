@@ -8,7 +8,9 @@ import vn.ehoso.account.domain.AuthToken;
 
 /** Access to tokens. */
 public interface AuthTokenRepository extends JpaRepository<AuthToken, UUID> {
+  /** Spring Data query. */
   Optional<AuthToken> findByTokenHash(String tokenHash);
 
+  /** Spring Data query. */
   List<AuthToken> findByUserIdAndPurposeAndUsedAtIsNull(UUID userId, AuthToken.Purpose purpose);
 }
