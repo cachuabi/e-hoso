@@ -259,12 +259,11 @@ class DossierFlowApiTest extends IntegrationTest {
   @Test
   @Tag("FR-21")
   void wrongPasswordThreeTimesLocksApprovalAndSendBackNeedsReason() throws Exception {
-    User boss = user(Role.LEADER);
     String id = submitted("KHAI_SINH");
     accept(id);
     assign(id);
     submitForApproval(id, "ISSUED");
-    String bossToken = login(boss);
+    String bossToken = login(user(Role.LEADER));
     for (int i = 0; i < 3; i++) {
       doPost(
               bossToken,
