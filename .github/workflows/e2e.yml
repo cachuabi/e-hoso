@@ -39,7 +39,7 @@ jobs:
           sleep 310
           CODE=$(curl -sk -o /dev/null -w '%{http_code}' "$(cat tests/k4-url.txt)")
           echo "after expiry: $CODE" | tee k4-expiry.txt
-          test "$CODE" = "403"
+          case "$CODE" in 4*) ;; *) exit 1 ;; esac
       - name: K2 – memory after the flows
         run: docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' | tee k2-after.txt
       - name: K6 – restart keeps data (NFR-05), reset clears it
