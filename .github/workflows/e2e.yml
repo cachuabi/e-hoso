@@ -15,7 +15,7 @@ jobs:
       matrix:
         runner: [ubuntu-24.04, ubuntu-24.04-arm] # K7: x86 and arm64
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - name: K1 – start from a clean clone
@@ -26,19 +26,14 @@ jobs:
             sleep 5
           done
           curl -skf https://localhost/api/v1/procedures | head -c 200
-      - uses: actions/setup-node@v7
-        with:
-          node-version: lts/*
-      - name: Install Playwright
-        working-directory: tests
-        run: |
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
       - name: K2 – idle memory
         run: docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' | tee k2-idle.txt
       - name: Acceptance flows, K3, K4, K5, screenshots
-        working-directory: tests
-        run: npx playwright test
+        timeout-minutes: 15
+        run: |
+          docker run --rm --network host -v "$PWD/tests:/work" -w /work \
+            mcr.microsoft.com/playwright:v1.56.1-noble \
+            sh -c "npm install --no-audit --no-fund && npx playwright test"
       - name: K2 – memory after the flows
         run: docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' | tee k2-after.txt
       - name: K6 – restart keeps data (NFR-05), reset clears it

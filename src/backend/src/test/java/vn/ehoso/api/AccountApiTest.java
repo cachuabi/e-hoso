@@ -243,7 +243,10 @@ class AccountApiTest extends IntegrationTest {
   }
 
   private String linkToken(String email) {
-    dispatcher.dispatchPending();
+    // Other tests leave emails in the queue, and one run sends at most 20.
+    for (int i = 0; i < 50 && !mail.sentTo.contains(email); i++) {
+      dispatcher.dispatchPending();
+    }
     int index = mail.sentTo.lastIndexOf(email);
     Matcher matcher = Pattern.compile("token=(\\S+)").matcher(mail.texts.get(index));
     assertThat(matcher.find()).isTrue();
