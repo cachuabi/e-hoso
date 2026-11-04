@@ -5,6 +5,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 const PASSWORD = process.env.DEMO_PASSWORD ?? 'Demo12345';
 const SHOTS = 'screenshots';
 mkdirSync(SHOTS, { recursive: true });
+test.use({ video: 'on', launchOptions: { slowMo: 250 } });
 const PDF = Buffer.from('%PDF-1.7\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n');
 
 async function login(request: APIRequestContext, email: string): Promise<string> {
@@ -218,7 +219,7 @@ test('[NFR-02] [NFR-09] giao diện theo vai trò, độ rộng 360 px và ảnh
   await noOverflow(page);
   await page.screenshot({ path: `${SHOTS}/05-da-nop.png`, fullPage: true });
   await page.goto('/ho-so');
-  await page.getByRole('cell').first().waitFor();
+  await page.getByRole('link', { name: 'Xem' }).first().waitFor();
   await noOverflow(page);
   await page.screenshot({ path: `${SHOTS}/06-ho-so-cua-toi.png`, fullPage: true });
   await page.getByRole('button', { name: 'Đăng xuất' }).click();

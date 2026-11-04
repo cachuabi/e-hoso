@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, type Detail, type Page, type Procedure } from '../api';
-import { DEADLINE_TEXT, fileProblem, formatDateTime, STATUS_TEXT } from '../labels';
+import {
+  ACTION_TEXT,
+  DEADLINE_TEXT,
+  fileProblem,
+  formatDateTime,
+  ROLE_TEXT,
+  STATUS_TEXT,
+} from '../labels';
 import { useSession } from '../session';
 import { DeadlineTag, ErrorBox, StatusTag } from '../ui';
 import { useAction, useLoad } from '../hooks';
@@ -441,8 +448,17 @@ export function StaffDetail() {
       ),
     `${id}-${dossier?.version}`,
   );
+  const { data: procedure } = useLoad(
+    () =>
+      dossier
+        ? api.get<Procedure>(`/procedures/${dossier.summary.procedureCode}`)
+        : Promise.resolve(null),
+    dossier?.summary.procedureCode ?? '',
+  );
   if (!dossier) return <ErrorBox message={error} />;
   const { summary } = dossier;
+  const labelOf = (key: string) =>
+    procedure?.formSchema.fields.find((f) => f.key === key)?.label ?? key;
   const role = session?.role;
   return (
     <>
@@ -490,7 +506,7 @@ export function StaffDetail() {
           )}
           {Object.entries(dossier.formData).map(([k, v]) => (
             <div key={k} style={{ display: 'contents' }}>
-              <dt>{k}</dt>
+              <dt>{labelOf(k)}</dt>
               <dd>{String(v)}</dd>
             </div>
           ))}
@@ -533,8 +549,8 @@ export function StaffDetail() {
           <ul className="plain">
             {logs.map((l, index) => (
               <li key={index}>
-                {formatDateTime(l.occurredAt)}: {l.action} ({l.actorRole})
-                {l.note ? `, ${l.note}` : ''}
+                {formatDateTime(l.occurredAt)}: {ACTION_TEXT[l.action] ?? l.action} (
+                {ROLE_TEXT[l.actorRole] ?? l.actorRole}){l.note ? `, ${l.note}` : ''}
               </li>
             ))}
           </ul>

@@ -49,6 +49,29 @@ export function formatDateTime(iso: string | null | undefined): string {
   }).format(date);
 }
 
+export const ACTION_TEXT: Record<string, string> = {
+  SUBMIT: 'Nộp hồ sơ',
+  RESUBMIT: 'Nộp lại sau bổ sung',
+  WITHDRAW: 'Rút hồ sơ',
+  REQUEST_SUPPLEMENT: 'Yêu cầu bổ sung',
+  REJECT: 'Từ chối tiếp nhận',
+  ACCEPT: 'Tiếp nhận',
+  ASSIGN: 'Phân công',
+  MARK_VERIFICATION: 'Gia hạn do xác minh',
+  SUBMIT_APPROVAL: 'Trình phê duyệt',
+  SEND_BACK: 'Trả lại công chức',
+  APPROVE: 'Phê duyệt',
+  RETURN_RESULT: 'Trả kết quả',
+};
+
+export const ROLE_TEXT: Record<string, string> = {
+  CITIZEN: 'Người dân',
+  CBMC: 'Cán bộ một cửa',
+  CCTP: 'Công chức tư pháp – hộ tịch',
+  LEADER: 'Lãnh đạo',
+  ADMIN: 'Quản trị viên',
+};
+
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png'];
 

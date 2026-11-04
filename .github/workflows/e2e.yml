@@ -56,6 +56,11 @@ jobs:
         run: |
           docker run --rm --network host -v "$PWD/tests:/t" grafana/k6:1.3.0 run \
             --summary-export /t/perf-summary.json /t/perf.js | tee perf.txt
+      - name: Dependency audit (D22)
+        if: matrix.runner == 'ubuntu-24.04'
+        continue-on-error: true
+        working-directory: src/frontend
+        run: npm audit --omit=dev 2>&1 | tee ../../audit.txt
       - name: Security baseline scan (D22)
         if: matrix.runner == 'ubuntu-24.04'
         continue-on-error: true
@@ -79,14 +84,18 @@ jobs:
         run: |
           SHA=${{ github.event.pull_request.head.sha || github.sha }}
           rm -rf /tmp/ev && mkdir -p /tmp/ev/$SHA
-          cp -r k2-*.txt k4-*.txt k6-* perf.txt zap tests/perf-summary.json tests/k5-upload-ms.txt tests/screenshots /tmp/ev/$SHA/ 2>/dev/null || true
+          cp -r k2-*.txt k4-*.txt k6-* perf.txt audit.txt zap tests/perf-summary.json tests/k5-upload-ms.txt tests/screenshots /tmp/ev/$SHA/ 2>/dev/null || true
+          find tests/test-results -name 'video.webm' -exec cp {} /tmp/ev/$SHA/demo.webm \; 2>/dev/null || true
           cd /tmp/ev
           git init -q -b evidence
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -qm "evidence: E2E run for $SHA"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" evidence
+          for i in 1 2 3 4 5; do
+            git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" evidence && break
+            sleep 20
+          done
       - uses: actions/upload-artifact@v7
         if: always()
         with:
