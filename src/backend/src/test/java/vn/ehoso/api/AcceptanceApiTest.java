@@ -63,7 +63,7 @@ class AcceptanceApiTest extends IntegrationTest {
   /** CK-B01. */
   @Test
   @Tag("BR-01")
-  void dossierCodeCountsPerDayAndAFailedAcceptanceBurnsNoNumber() throws Exception {
+  void dossierCodeCountsPerDayAndFailedAcceptanceBurnsNoNumber() throws Exception {
     clock.set("2031-03-05T09:00:00+07:00");
     signIn();
     assertThat(acceptAndCode(submitted("KHAI_SINH"))).isEqualTo("HS-310305-0001");
@@ -233,7 +233,7 @@ class AcceptanceApiTest extends IntegrationTest {
   /** CK-C08. */
   @Test
   @Tag("FR-18")
-  void assignmentShowsTheLoadAndRefusesALockedOfficer() throws Exception {
+  void assignmentShowsTheLoadAndRefusesLockedOfficer() throws Exception {
     String first = submitted("KHAI_SINH");
     accept(first);
     assign(first);
