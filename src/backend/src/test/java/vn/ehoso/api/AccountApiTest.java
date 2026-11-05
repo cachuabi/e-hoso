@@ -170,6 +170,17 @@ class AccountApiTest extends IntegrationTest {
   }
 
   @Test
+  @Tag("NFR-03")
+  void accessTokenExpiresAfterThirtyMinutes() throws Exception {
+    String token = login(user(Role.CITIZEN));
+    doGet(token, "/api/v1/dossiers").andExpect(status().isOk());
+    clock.advance(Duration.ofMinutes(29));
+    doGet(token, "/api/v1/dossiers").andExpect(status().isOk());
+    clock.advance(Duration.ofMinutes(3));
+    doGet(token, "/api/v1/dossiers").andExpect(status().isUnauthorized());
+  }
+
+  @Test
   @Tag("FR-05")
   void matrixOfRolesIsEnforced() throws Exception {
     Map<Role, String> tokens = new HashMap<>();
@@ -186,6 +197,16 @@ class AccountApiTest extends IntegrationTest {
           tokens.get(role), "/api/v1/dashboard?from=2026-11-01&to=2026-11-02", role == Role.LEADER);
       expectGet(tokens.get(role), "/api/v1/admin/users", role == Role.ADMIN);
       expectPostForbiddenUnless(tokens.get(role), anyDossier + "/accept", role == Role.CBMC);
+      for (String action : List.of("request-supplement", "reject", "assign", "return-result")) {
+        expectRoleGate(tokens.get(role), anyDossier + "/" + action, role == Role.CBMC);
+      }
+      expectRoleGate(tokens.get(role), anyDossier + "/verification", role == Role.CCTP);
+      expectRoleGate(tokens.get(role), anyDossier + "/send-back", role == Role.LEADER);
+      expectGet(
+          tokens.get(role),
+          "/api/v1/dashboard/export.csv?from=2026-11-01&to=2026-11-02",
+          role == Role.LEADER);
+      expectGet(tokens.get(role), "/api/v1/admin/holidays", role == Role.ADMIN);
       expectPostForbiddenUnless(tokens.get(role), anyDossier + "/approve", role == Role.LEADER);
       expectPostForbiddenUnless(
           tokens.get(role), anyDossier + "/submit-approval", role == Role.CCTP);
@@ -198,6 +219,15 @@ class AccountApiTest extends IntegrationTest {
     int code = doGet(token, url).andReturn().getResponse().getStatus();
     if (allowed) {
       assertThat(code).as(url).isEqualTo(200);
+    } else {
+      assertThat(code).as(url).isEqualTo(403);
+    }
+  }
+
+  private void expectRoleGate(String token, String url, boolean allowed) throws Exception {
+    int code = doPost(token, url, Map.of("version", 0)).andReturn().getResponse().getStatus();
+    if (allowed) {
+      assertThat(code).as(url).isIn(404, 422);
     } else {
       assertThat(code).as(url).isEqualTo(403);
     }

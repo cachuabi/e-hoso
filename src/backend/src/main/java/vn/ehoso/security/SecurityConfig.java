@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -110,8 +111,13 @@ class SecurityConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder(@Value("${ehoso.jwt.secret}") String secret) {
-    return NimbusJwtDecoder.withSecretKey(key(secret)).macAlgorithm(MacAlgorithm.HS256).build();
+  JwtDecoder jwtDecoder(@Value("${ehoso.jwt.secret}") String secret, Clock clock) {
+    NimbusJwtDecoder decoder =
+        NimbusJwtDecoder.withSecretKey(key(secret)).macAlgorithm(MacAlgorithm.HS256).build();
+    JwtTimestampValidator timestamps = new JwtTimestampValidator();
+    timestamps.setClock(clock);
+    decoder.setJwtValidator(timestamps);
+    return decoder;
   }
 
   private SecretKey key(String secret) {

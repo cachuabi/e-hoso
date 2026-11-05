@@ -85,7 +85,8 @@ class IntegrityApiTest extends IntegrationTest {
     assertThat(last.getStatus()).isEqualTo(Notification.Status.FAILED);
     assertThat(last.getAttempts()).isEqualTo(4);
     mail.failing = false;
-    assertThat(read(doGet(citizen, "/api/v1/dossiers/" + id)).at("/summary/status").asText())
+    String staff = login(user(Role.CBMC));
+    assertThat(read(doGet(staff, "/api/v1/staff/dossiers/" + id)).at("/summary/status").asText())
         .isEqualTo("SUBMITTED");
   }
 
@@ -96,7 +97,8 @@ class IntegrityApiTest extends IntegrationTest {
   @Tag("BR-06")
   @Tag("BR-07")
   void dashboardCountsOnTimeAndLateResults() throws Exception {
-    String leader = login(user(Role.LEADER));
+    var leaderUser = user(Role.LEADER);
+    String leader = login(leaderUser);
     String cbmc = login(user(Role.CBMC));
     var officer = user(Role.CCTP);
     String cctp = login(officer);
@@ -108,6 +110,7 @@ class IntegrityApiTest extends IntegrationTest {
         read(doGet(cctp, "/api/v1/staff/dossiers?status=PENDING_APPROVAL&deadlineLabel=ON_TIME"));
     assertThat(queue.get("total").asInt()).isEqualTo(1);
     clock.set("2030-03-05T09:00:00+07:00");
+    leader = login(leaderUser);
     approve(leader, late);
 
     JsonNode data = read(doGet(leader, "/api/v1/dashboard?from=2030-03-04&to=2030-03-05"));
