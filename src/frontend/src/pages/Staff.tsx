@@ -505,13 +505,13 @@ export function StaffDetail() {
             </>
           )}
           {Object.entries(dossier.formData).map(([k, v]) => (
-            <div key={k} style={{ display: 'contents' }}>
+            <div key={k} className="contents">
               <dt>{labelOf(k)}</dt>
               <dd>{String(v)}</dd>
             </div>
           ))}
         </dl>
-        <h3 style={{ marginTop: 12 }}>Tệp</h3>
+        <h3 className="mt">Tệp</h3>
         <div className="acts">
           {dossier.attachments.map((a) => (
             <button key={a.id} className="btn alt" onClick={() => void api.openFile(a.id)}>
@@ -526,7 +526,7 @@ export function StaffDetail() {
       )}
       {role === 'CBMC' && summary.status === 'ACCEPTED' && (
         <>
-          <div className="acts" style={{ marginBottom: 12 }}>
+          <div className="acts mb">
             <Link className="btn alt" to={`/can-bo/ho-so/${summary.id}/phieu-hen`}>
               In phiếu hẹn trả
             </Link>

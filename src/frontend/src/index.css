@@ -257,6 +257,15 @@ dd {
   padding: 14px;
   background: #fff;
 }
+.mt {
+  margin-top: 12px;
+}
+.mb {
+  margin-bottom: 12px;
+}
+.contents {
+  display: contents;
+}
 ul.plain {
   margin: 0;
   padding-left: 18px;

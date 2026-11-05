@@ -204,7 +204,7 @@ function CitizenDetailBody({ dossier, reload }: { dossier: Detail; reload: () =>
               </button>
             </div>
           )}
-          <h3 style={{ marginTop: 12 }}>Tệp đính kèm</h3>
+          <h3 className="mt">Tệp đính kèm</h3>
           <ComponentFiles
             dossier={dossier}
             components={procedure.components}
@@ -247,7 +247,7 @@ function CitizenDetailBody({ dossier, reload }: { dossier: Detail; reload: () =>
         )}
       </div>
       {history && history.length > 0 && (
-        <div className="card" style={{ marginTop: 12 }}>
+        <div className="card mt">
           <h3>Lịch sử trạng thái</h3>
           <ul className="plain">
             {history.map((h) => (

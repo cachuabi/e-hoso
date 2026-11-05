@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
@@ -10,4 +10,10 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     screenshot: 'only-on-failure',
   },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // NFR-09: other engines run the compatibility smoke test only.
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: /compat\.spec/ },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: /compat\.spec/ },
+  ],
 });

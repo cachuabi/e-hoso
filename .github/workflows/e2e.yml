@@ -84,7 +84,7 @@ jobs:
         run: |
           SHA=${{ github.event.pull_request.head.sha || github.sha }}
           rm -rf /tmp/ev && mkdir -p /tmp/ev/$SHA
-          cp -r k2-*.txt k4-*.txt k6-* perf.txt audit.txt zap tests/perf-summary.json tests/k5-upload-ms.txt tests/screenshots /tmp/ev/$SHA/ 2>/dev/null || true
+          cp -r k2-*.txt k4-*.txt k6-* perf.txt audit.txt zap tests/perf-summary.json tests/k5-upload-ms.txt tests/browsers.txt tests/axe.txt tests/screenshots /tmp/ev/$SHA/ 2>/dev/null || true
           find tests/test-results -name 'video.webm' -exec cp {} /tmp/ev/$SHA/demo.webm \; 2>/dev/null || true
           cd /tmp/ev
           git init -q -b evidence

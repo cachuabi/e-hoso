@@ -90,7 +90,7 @@ export function AdminUsers() {
           ))}
         </tbody>
       </table>
-      <form className="card" style={{ marginTop: 12 }} onSubmit={create}>
+      <form className="card mt" onSubmit={create}>
         <h3>Tạo tài khoản</h3>
         {(
           [
@@ -264,8 +264,7 @@ export function AdminHolidays() {
         </tbody>
       </table>
       <form
-        className="card"
-        style={{ marginTop: 12 }}
+        className="card mt"
         onSubmit={(e) => {
           e.preventDefault();
           void run(async () => {

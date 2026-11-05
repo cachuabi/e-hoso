@@ -105,7 +105,7 @@ export function Lookup() {
             <dt>Ngày hẹn trả</dt>
             <dd>{formatDateTime(result.dueAt)}</dd>
           </dl>
-          <h3 style={{ marginTop: 12 }}>Các mốc</h3>
+          <h3 className="mt">Các mốc</h3>
           <ul className="plain">
             {result.milestones.map((m) => (
               <li key={m.occurredAt + m.status}>
