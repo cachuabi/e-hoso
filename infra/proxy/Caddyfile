@@ -1,0 +1,42 @@
+# NFR-03: HTTPS with Caddy's internal CA. Browsers warn until that CA is trusted.
+{
+	# Java clients send no SNI for "localhost".
+	default_sni {$SITE_HOST:localhost}
+}
+
+{$SITE_HOST:localhost}:443 {
+	tls internal
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		Strict-Transport-Security "max-age=31536000"
+		Content-Security-Policy "default-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		Permissions-Policy "geolocation=(), camera=(), microphone=()"
+		Cross-Origin-Opener-Policy same-origin
+		Cross-Origin-Resource-Policy same-origin
+		Cross-Origin-Embedder-Policy require-corp
+		-Server
+	}
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# Signed links only: the original Host and path stay intact, so the signature stays valid.
+{$SITE_HOST:localhost}:9443 {
+	tls internal
+	@read method GET HEAD
+	handle @read {
+		reverse_proxy storage:3900
+	}
+	handle {
+		respond 405
+	}
+}

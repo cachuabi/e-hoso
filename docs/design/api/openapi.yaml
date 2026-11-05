@@ -1,0 +1,847 @@
+openapi: 3.0.3
+info:
+  title: e-HoSo API
+  version: 1.1.0
+  description: >-
+    Đặc tả thiết kế (D14) cho REST API của e-HoSo. Mỗi thao tác ghi yêu cầu liên quan ở
+    x-requirements và vai trò được phép ở x-roles, theo ma trận SRS v1.1 mục 3.7 và SDD v1.0 mục 12.2.
+    Thời điểm dùng ISO 8601 có múi giờ (NFR-10). Lỗi theo RFC 9457.
+servers:
+  - url: /api/v1
+tags:
+  - {name: auth, description: Xác thực}
+  - {name: catalog, description: Danh mục thủ tục}
+  - {name: public, description: Tra cứu công khai}
+  - {name: dossier, description: Hồ sơ của người dân}
+  - {name: file, description: Tệp đính kèm}
+  - {name: intake, description: 'Tiếp nhận, phân công, trả kết quả'}
+  - {name: review, description: Thẩm định}
+  - {name: approval, description: Phê duyệt}
+  - {name: staff, description: Danh sách và nhật ký của cán bộ}
+  - {name: dashboard, description: Số liệu}
+  - {name: admin, description: Quản trị}
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      tags: [auth]
+      operationId: register
+      summary: Đăng ký tài khoản người dân
+      security: []
+      x-requirements: [FR-01, NFR-03]
+      x-roles: [GUEST]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RegisterRequest'}}}}
+      responses:
+        '201': {description: Đã tạo tài khoản chờ xác thực email}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /auth/verify-email:
+    post:
+      tags: [auth]
+      operationId: verifyEmail
+      summary: Kích hoạt tài khoản bằng liên kết 24 giờ
+      security: []
+      x-requirements: [FR-01]
+      x-roles: [GUEST]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TokenRequest'}}}}
+      responses:
+        '204': {description: Đã kích hoạt}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /auth/resend-verification:
+    post:
+      tags: [auth]
+      operationId: resendVerification
+      summary: Gửi lại liên kết xác thực
+      security: []
+      x-requirements: [FR-01]
+      x-roles: [GUEST]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EmailRequest'}}}}
+      responses:
+        '202': {description: Đã nhận yêu cầu; không cho biết email có tồn tại hay không}
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Đăng nhập; refresh token trả trong cookie HttpOnly
+      security: []
+      x-requirements: [FR-02, NFR-03]
+      x-roles: [GUEST]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/LoginRequest'}}}}
+      responses:
+        '200': {description: Thành công, content: {application/json: {schema: {$ref: '#/components/schemas/Session'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '423': {$ref: '#/components/responses/Locked'}
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refresh
+      summary: Đổi refresh token trong cookie lấy access token mới
+      security: []
+      x-requirements: [NFR-03]
+      x-roles: [AUTHENTICATED]
+      responses:
+        '200': {description: Thành công, content: {application/json: {schema: {$ref: '#/components/schemas/Session'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: Thu hồi refresh token
+      x-requirements: [NFR-03]
+      x-roles: [AUTHENTICATED]
+      responses:
+        '204': {description: Đã đăng xuất}
+  /auth/password-reset:
+    post:
+      tags: [auth]
+      operationId: requestPasswordReset
+      summary: Yêu cầu liên kết đặt lại mật khẩu 30 phút
+      security: []
+      x-requirements: [FR-03]
+      x-roles: [GUEST]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EmailRequest'}}}}
+      responses:
+        '202': {description: Đã nhận yêu cầu; không cho biết email có tồn tại hay không}
+  /auth/password-reset/confirm:
+    post:
+      tags: [auth]
+      operationId: confirmPasswordReset
+      summary: Đặt mật khẩu mới; liên kết dùng một lần
+      security: []
+      x-requirements: [FR-03, NFR-03]
+      x-roles: [GUEST]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PasswordResetConfirm'}}}}
+      responses:
+        '204': {description: Đã đổi mật khẩu}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /procedures:
+    get:
+      tags: [catalog]
+      operationId: listProcedures
+      summary: Danh mục thủ tục
+      security: []
+      x-requirements: [FR-06]
+      x-roles: [GUEST, AUTHENTICATED]
+      responses:
+        '200': {description: Danh sách, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/Procedure'}}}}}
+  /procedures/{code}:
+    get:
+      tags: [catalog]
+      operationId: getProcedure
+      summary: Chi tiết thủ tục, thành phần, biểu mẫu
+      security: []
+      x-requirements: [FR-06, FR-07]
+      x-roles: [GUEST, AUTHENTICATED]
+      parameters: [{name: code, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: Chi tiết, content: {application/json: {schema: {$ref: '#/components/schemas/Procedure'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /public/lookup:
+    post:
+      tags: [public]
+      operationId: lookupDossier
+      summary: Tra cứu bằng mã và 4 số cuối số định danh; không trả thông tin cá nhân
+      security: []
+      x-requirements: [FR-12, NFR-04]
+      x-roles: [GUEST, AUTHENTICATED]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/LookupRequest'}}}}
+      responses:
+        '200': {description: Khớp, content: {application/json: {schema: {$ref: '#/components/schemas/PublicStatus'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '429': {description: Vượt 10 lần sai trong 10 phút từ cùng địa chỉ IP}
+  /dossiers:
+    get:
+      tags: [dossier]
+      operationId: listMyDossiers
+      summary: Hồ sơ của tôi, lọc theo trạng thái
+      x-requirements: [FR-13]
+      x-roles: [CITIZEN]
+      parameters:
+        - {$ref: '#/components/parameters/StatusFilter'}
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/Size'}
+      responses:
+        '200': {description: Danh sách, content: {application/json: {schema: {$ref: '#/components/schemas/DossierPage'}}}}
+    post:
+      tags: [dossier]
+      operationId: createDraft
+      summary: Tạo hồ sơ Nháp
+      x-requirements: [FR-07]
+      x-roles: [CITIZEN]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/DraftRequest'}}}}
+      responses:
+        '201': {description: Đã tạo, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /dossiers/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [dossier]
+      operationId: getMyDossier
+      summary: Chi tiết hồ sơ của tôi, gồm yêu cầu bổ sung nếu có
+      x-requirements: [FR-11, FR-13]
+      x-roles: [CITIZEN]
+      responses:
+        '200': {description: Chi tiết, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [dossier]
+      operationId: updateDossierForm
+      summary: Sửa biểu mẫu khi hồ sơ ở Nháp hoặc Chờ bổ sung
+      x-requirements: [FR-07, FR-11]
+      x-roles: [CITIZEN]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/FormUpdate'}}}}
+      responses:
+        '200': {description: Đã lưu, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /dossiers/{id}/submit:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [dossier]
+      operationId: submitDossier
+      summary: Nộp hồ sơ
+      x-requirements: [FR-09, FR-14, FR-23, BR-01]
+      x-roles: [CITIZEN]
+      responses:
+        '200': {description: Đã nộp, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /dossiers/{id}/resubmit:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [dossier]
+      operationId: resubmitDossier
+      summary: Nộp lại sau khi bổ sung
+      x-requirements: [FR-11, FR-14, FR-23]
+      x-roles: [CITIZEN]
+      responses:
+        '200': {description: Đã nộp lại, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /dossiers/{id}/withdraw:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [dossier]
+      operationId: withdrawDossier
+      summary: Rút hồ sơ
+      x-requirements: [FR-10, FR-23, BR-04]
+      x-roles: [CITIZEN]
+      responses:
+        '200': {description: Đã rút, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /dossiers/{id}/history:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [dossier]
+      operationId: getMyDossierHistory
+      summary: Các mốc trạng thái của hồ sơ
+      x-requirements: [FR-13, FR-23]
+      x-roles: [CITIZEN]
+      responses:
+        '200': {description: Mốc trạng thái, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/StatusEvent'}}}}}
+  /dossiers/{id}/attachments:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [file]
+      operationId: uploadAttachment
+      summary: Tải tệp lên (người dân loại DOSSIER; CCTP được giao loại DRAFT)
+      x-requirements: [FR-08, FR-11, FR-19]
+      x-roles: [CITIZEN, CCTP_ASSIGNED]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, kind]
+              properties:
+                file: {type: string, format: binary, description: 'PDF, JPG, PNG; tối đa 10 MB; hồ sơ tối đa 30 MB'}
+                kind: {type: string, enum: [DOSSIER, DRAFT]}
+                componentId: {type: string, format: uuid}
+      responses:
+        '201': {description: Đã lưu, content: {application/json: {schema: {$ref: '#/components/schemas/Attachment'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /attachments/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    delete:
+      tags: [file]
+      operationId: deleteAttachment
+      summary: Xoá tệp theo cùng điều kiện tải lên
+      x-requirements: [FR-08, FR-11, FR-19]
+      x-roles: [CITIZEN, CCTP_ASSIGNED]
+      responses:
+        '204': {description: Đã xoá}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /attachments/{id}/download-url:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [file]
+      operationId: getDownloadUrl
+      summary: Lấy URL ký 5 phút sau khi kiểm tra quyền
+      x-requirements: [FR-15, FR-22, NFR-04]
+      x-roles: [CITIZEN, CBMC, CCTP_ASSIGNED, LEADER]
+      responses:
+        '200': {description: URL ký, content: {application/json: {schema: {$ref: '#/components/schemas/SignedUrl'}}}}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /staff/dossiers:
+    get:
+      tags: [staff]
+      operationId: listStaffDossiers
+      summary: Hàng đợi, danh sách theo phạm vi vai trò, kèm nhãn hạn
+      x-requirements: [FR-15, FR-19, FR-21, FR-24, BR-06]
+      x-roles: [CBMC, CCTP_ASSIGNED, LEADER]
+      parameters:
+        - {$ref: '#/components/parameters/StatusFilter'}
+        - {name: deadlineLabel, in: query, schema: {$ref: '#/components/schemas/DeadlineLabel'}}
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/Size'}
+      responses:
+        '200': {description: Danh sách, content: {application/json: {schema: {$ref: '#/components/schemas/DossierPage'}}}}
+  /staff/dossiers/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [staff]
+      operationId: getStaffDossier
+      summary: Chi tiết hồ sơ cho cán bộ
+      x-requirements: [FR-15, FR-19, FR-21]
+      x-roles: [CBMC, CCTP_ASSIGNED, LEADER]
+      responses:
+        '200': {description: Chi tiết, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /staff/dossiers/{id}/logs:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [staff]
+      operationId: getDossierLogs
+      summary: Nhật ký đầy đủ; không có API sửa, xoá
+      x-requirements: [FR-23]
+      x-roles: [CBMC, CCTP_ASSIGNED, LEADER, ADMIN]
+      responses:
+        '200': {description: Nhật ký, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/LogEntry'}}}}}
+  /staff/officers:
+    get:
+      tags: [intake]
+      operationId: listOfficers
+      summary: Danh sách CCTP kèm số hồ sơ đang xử lý
+      x-requirements: [FR-18]
+      x-roles: [CBMC]
+      responses:
+        '200': {description: Danh sách, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/OfficerLoad'}}}}}
+  /staff/dossiers/{id}/accept:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [intake]
+      operationId: acceptDossier
+      summary: Tiếp nhận, cấp mã hồ sơ, tính ngày hẹn trả
+      x-requirements: [FR-16, FR-17, FR-14, FR-23, BR-01, BR-02, BR-03]
+      x-roles: [CBMC]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AcceptRequest'}}}}
+      responses:
+        '200': {description: Đã tiếp nhận, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /staff/dossiers/{id}/request-supplement:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [intake]
+      operationId: requestSupplement
+      summary: Yêu cầu bổ sung, liệt kê đủ thành phần thiếu
+      x-requirements: [FR-16, FR-14, FR-23, BR-09]
+      x-roles: [CBMC]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SupplementRequest'}}}}
+      responses:
+        '200': {description: Đã yêu cầu, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /staff/dossiers/{id}/reject:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [intake]
+      operationId: rejectDossier
+      summary: Từ chối tiếp nhận, bắt buộc có lý do
+      x-requirements: [FR-16, FR-14, FR-23]
+      x-roles: [CBMC]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ReasonRequest'}}}}
+      responses:
+        '200': {description: Đã từ chối, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /staff/dossiers/{id}/assign:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [intake]
+      operationId: assignDossier
+      summary: Phân công CCTP
+      x-requirements: [FR-18, FR-23]
+      x-roles: [CBMC]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AssignRequest'}}}}
+      responses:
+        '200': {description: Đã phân công, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /staff/dossiers/{id}/return-result:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [intake]
+      operationId: returnResult
+      summary: Trả kết quả, ghi hình thức trả
+      x-requirements: [FR-22, FR-14, FR-23]
+      x-roles: [CBMC]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ReturnRequest'}}}}
+      responses:
+        '200': {description: Đã trả, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /staff/dossiers/{id}/verification:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [review]
+      operationId: markVerification
+      summary: Đánh dấu cần xác minh, cộng 3 ngày làm việc một lần
+      x-requirements: [FR-20, FR-14, FR-23, BR-05]
+      x-roles: [CCTP_ASSIGNED]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/VerificationRequest'}}}}
+      responses:
+        '200': {description: Đã gia hạn, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /staff/dossiers/{id}/submit-approval:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [review]
+      operationId: submitForApproval
+      summary: Trình phê duyệt
+      x-requirements: [FR-19, FR-23]
+      x-roles: [CCTP_ASSIGNED]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SubmitApprovalRequest'}}}}
+      responses:
+        '200': {description: Đã trình, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /staff/dossiers/{id}/approve:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [approval]
+      operationId: approveDossier
+      summary: Phê duyệt, ký mô phỏng bằng mật khẩu
+      x-requirements: [FR-21, FR-14, FR-23, BR-07, BR-08]
+      x-roles: [LEADER]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ApproveRequest'}}}}
+      responses:
+        '200': {description: Đã phê duyệt, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+        '423': {$ref: '#/components/responses/Locked'}
+  /staff/dossiers/{id}/send-back:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    post:
+      tags: [approval]
+      operationId: sendBackDossier
+      summary: Trả lại cho CCTP, bắt buộc có lý do
+      x-requirements: [FR-21, FR-23]
+      x-roles: [LEADER]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ReasonRequest'}}}}
+      responses:
+        '200': {description: Đã trả lại, content: {application/json: {schema: {$ref: '#/components/schemas/DossierDetail'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /dashboard:
+    get:
+      tags: [dashboard]
+      operationId: getDashboard
+      summary: Số liệu theo khoảng thời gian
+      x-requirements: [FR-25, BR-07]
+      x-roles: [LEADER]
+      parameters:
+        - {$ref: '#/components/parameters/From'}
+        - {$ref: '#/components/parameters/To'}
+      responses:
+        '200': {description: Số liệu, content: {application/json: {schema: {$ref: '#/components/schemas/Dashboard'}}}}
+  /dashboard/export.csv:
+    get:
+      tags: [dashboard]
+      operationId: exportDashboard
+      summary: Xuất CSV UTF-8
+      x-requirements: [FR-26]
+      x-roles: [LEADER]
+      parameters:
+        - {$ref: '#/components/parameters/From'}
+        - {$ref: '#/components/parameters/To'}
+      responses:
+        '200': {description: Tệp CSV, content: {text/csv: {schema: {type: string}}}}
+  /admin/users:
+    get:
+      tags: [admin]
+      operationId: listStaffUsers
+      summary: Danh sách tài khoản cán bộ
+      x-requirements: [FR-04]
+      x-roles: [ADMIN]
+      responses:
+        '200': {description: Danh sách, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/StaffUser'}}}}}
+    post:
+      tags: [admin]
+      operationId: createStaffUser
+      summary: Tạo tài khoản cán bộ
+      x-requirements: [FR-04]
+      x-roles: [ADMIN]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/StaffUserCreate'}}}}
+      responses:
+        '201': {description: Đã tạo, content: {application/json: {schema: {$ref: '#/components/schemas/StaffUser'}}}}
+        '422': {$ref: '#/components/responses/Invalid'}
+  /admin/users/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    patch:
+      tags: [admin]
+      operationId: updateStaffUser
+      summary: Khoá, mở khoá, đổi vai trò; quyền có hiệu lực ngay
+      x-requirements: [FR-04, FR-05]
+      x-roles: [ADMIN]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/StaffUserUpdate'}}}}
+      responses:
+        '200': {description: Đã lưu, content: {application/json: {schema: {$ref: '#/components/schemas/StaffUser'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /admin/procedures/{code}:
+    put:
+      tags: [admin]
+      operationId: updateProcedure
+      summary: Cấu hình thời hạn và mốc 15 giờ; thành phần hồ sơ quản lý bằng dữ liệu khởi tạo
+      x-requirements: [FR-27]
+      x-roles: [ADMIN]
+      parameters: [{name: code, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProcedureConfig'}}}}
+      responses:
+        '200': {description: Đã lưu, content: {application/json: {schema: {$ref: '#/components/schemas/Procedure'}}}}
+  /admin/holidays:
+    get:
+      tags: [admin]
+      operationId: listHolidays
+      summary: Lịch ngày nghỉ, ngày làm bù
+      x-requirements: [FR-28]
+      x-roles: [ADMIN]
+      responses:
+        '200': {description: Danh sách, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/Holiday'}}}}}
+    post:
+      tags: [admin]
+      operationId: addHoliday
+      summary: Thêm ngày nghỉ hoặc ngày làm bù
+      x-requirements: [FR-28]
+      x-roles: [ADMIN]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Holiday'}}}}
+      responses:
+        '201': {description: Đã thêm}
+  /admin/holidays/{day}:
+    delete:
+      tags: [admin]
+      operationId: deleteHoliday
+      summary: Xoá ngày trong lịch
+      x-requirements: [FR-28]
+      x-roles: [ADMIN]
+      parameters: [{name: day, in: path, required: true, schema: {type: string, format: date}}]
+      responses:
+        '204': {description: Đã xoá}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}
+  parameters:
+    Id: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
+    StatusFilter: {name: status, in: query, schema: {$ref: '#/components/schemas/DossierStatus'}}
+    Page: {name: page, in: query, schema: {type: integer, minimum: 0, default: 0}}
+    Size: {name: size, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+    From: {name: from, in: query, required: true, schema: {type: string, format: date}}
+    To: {name: to, in: query, required: true, schema: {type: string, format: date}}
+  responses:
+    Invalid: {description: Dữ liệu không hợp lệ, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Unauthorized: {description: Chưa xác thực hoặc sai thông tin, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Forbidden: {description: Không đủ quyền, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    NotFound: {description: Không tìm thấy, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Conflict: {description: Chuyển trạng thái không hợp lệ hoặc xung đột phiên bản; trả trạng thái hiện tại, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Locked: {description: Tài khoản hoặc thao tác phê duyệt đang bị khoá, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+  schemas:
+    Problem:
+      type: object
+      required: [title, status, code]
+      properties:
+        title: {type: string}
+        status: {type: integer}
+        code: {type: string}
+        detail: {type: string}
+        currentStatus: {$ref: '#/components/schemas/DossierStatus'}
+        lockedUntil: {type: string, format: date-time}
+        errors: {type: array, items: {type: object, properties: {field: {type: string}, message: {type: string}}}}
+    DossierStatus: {type: string, enum: [DRAFT, SUBMITTED, NEED_SUPPLEMENT, REJECTED, WITHDRAWN, ACCEPTED, IN_PROGRESS, PENDING_APPROVAL, APPROVED, RETURNED]}
+    DeadlineLabel: {type: string, enum: [ON_TIME, DUE_SOON, OVERDUE]}
+    Role: {type: string, enum: [CITIZEN, CBMC, CCTP, LEADER, ADMIN]}
+    RegisterRequest:
+      type: object
+      required: [fullName, nationalId, email, phone, password]
+      properties:
+        fullName: {type: string, maxLength: 150}
+        nationalId: {type: string, pattern: '^[0-9]{12}$'}
+        email: {type: string, format: email}
+        phone: {type: string, maxLength: 15}
+        password: {type: string, minLength: 8, description: Gồm chữ và số}
+    TokenRequest: {type: object, required: [token], properties: {token: {type: string}}}
+    EmailRequest: {type: object, required: [email], properties: {email: {type: string, format: email}}}
+    LoginRequest: {type: object, required: [email, password], properties: {email: {type: string, format: email}, password: {type: string}}}
+    PasswordResetConfirm: {type: object, required: [token, newPassword], properties: {token: {type: string}, newPassword: {type: string, minLength: 8}}}
+    Session:
+      type: object
+      required: [accessToken, expiresIn, role]
+      properties:
+        accessToken: {type: string}
+        expiresIn: {type: integer, description: Giây; mặc định 1800}
+        role: {$ref: '#/components/schemas/Role'}
+        fullName: {type: string}
+    Component:
+      type: object
+      required: [name, requirement]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        requirement: {type: string, enum: [REQUIRED, CONDITIONAL]}
+        allowedTypes: {type: array, items: {type: string}}
+    Procedure:
+      type: object
+      required: [code, name, deadlineUnit]
+      properties:
+        code: {type: string}
+        name: {type: string}
+        deadlineUnit: {type: string, enum: [SAME_DAY, WORKING_DAYS]}
+        deadlineDays: {type: integer, nullable: true}
+        applies15hCutoff: {type: boolean}
+        allowsVerification: {type: boolean}
+        requiresOriginalCheck: {type: boolean}
+        documentsToPresent: {type: string}
+        formSchema: {type: object}
+        components: {type: array, items: {$ref: '#/components/schemas/Component'}}
+    ProcedureConfig:
+      type: object
+      required: [deadlineUnit]
+      properties:
+        deadlineUnit: {type: string, enum: [SAME_DAY, WORKING_DAYS]}
+        deadlineDays: {type: integer, nullable: true}
+        applies15hCutoff: {type: boolean}
+    LookupRequest:
+      type: object
+      required: [code, nationalIdLast4]
+      properties:
+        code: {type: string, description: Mã tham chiếu hoặc mã hồ sơ}
+        nationalIdLast4: {type: string, pattern: '^[0-9]{4}$'}
+    PublicStatus:
+      type: object
+      description: Chỉ 4 trường theo FR-12; không có thông tin cá nhân.
+      additionalProperties: false
+      required: [procedureName, status, milestones]
+      properties:
+        procedureName: {type: string}
+        status: {$ref: '#/components/schemas/DossierStatus'}
+        milestones: {type: array, items: {$ref: '#/components/schemas/StatusEvent'}}
+        dueAt: {type: string, format: date-time, nullable: true}
+    StatusEvent:
+      type: object
+      required: [status, occurredAt]
+      properties:
+        status: {$ref: '#/components/schemas/DossierStatus'}
+        occurredAt: {type: string, format: date-time}
+    DraftRequest:
+      type: object
+      required: [procedureCode, formData]
+      properties:
+        procedureCode: {type: string}
+        formData: {type: object}
+    FormUpdate:
+      type: object
+      required: [formData, version]
+      properties:
+        formData: {type: object}
+        version: {type: integer, format: int64}
+    Attachment:
+      type: object
+      required: [id, fileName, mimeType, sizeBytes, kind]
+      properties:
+        id: {type: string, format: uuid}
+        componentId: {type: string, format: uuid, nullable: true}
+        fileName: {type: string}
+        mimeType: {type: string}
+        sizeBytes: {type: integer, format: int64}
+        kind: {type: string, enum: [DOSSIER, DRAFT, RESULT]}
+    SignedUrl:
+      type: object
+      required: [url, expiresAt]
+      properties:
+        url: {type: string, format: uri}
+        expiresAt: {type: string, format: date-time}
+    DossierSummary:
+      type: object
+      required: [id, procedureName, status]
+      properties:
+        id: {type: string, format: uuid}
+        referenceCode: {type: string, nullable: true}
+        dossierCode: {type: string, nullable: true}
+        procedureName: {type: string}
+        status: {$ref: '#/components/schemas/DossierStatus'}
+        submittedAt: {type: string, format: date-time, nullable: true}
+        dueAt: {type: string, format: date-time, nullable: true}
+        deadlineLabel: {allOf: [{$ref: '#/components/schemas/DeadlineLabel'}], nullable: true}
+        assignedOfficerName: {type: string, nullable: true}
+        applicantName: {type: string, nullable: true}
+        procedureCode: {type: string}
+    DossierDetail:
+      type: object
+      required: [summary, formData, attachments, version]
+      properties:
+        summary: {$ref: '#/components/schemas/DossierSummary'}
+        formData: {type: object}
+        attachments: {type: array, items: {$ref: '#/components/schemas/Attachment'}}
+        supplementCount: {type: integer}
+        latestSupplement: {allOf: [{$ref: '#/components/schemas/SupplementView'}], nullable: true}
+        originalChecked: {type: boolean}
+        requiresOriginalCheck: {type: boolean}
+        allowsVerification: {type: boolean}
+        verificationFlag: {type: boolean}
+        verificationPlace: {type: string, nullable: true}
+        reviewOpinion: {type: string, nullable: true}
+        sendBackReason: {type: string, nullable: true}
+        resultKind: {type: string, enum: [ISSUED, REFUSED], nullable: true}
+        resultAt: {type: string, format: date-time, nullable: true}
+        onTime: {type: boolean, nullable: true, description: BR-07}
+        resultExpiresOn: {type: string, format: date, nullable: true}
+        returnMethod: {type: string, enum: [COUNTER, ELECTRONIC], nullable: true}
+        version: {type: integer, format: int64}
+    SupplementView:
+      type: object
+      required: [instruction, items]
+      properties:
+        instruction: {type: string}
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              componentId: {type: string, format: uuid}
+              componentName: {type: string}
+              note: {type: string, nullable: true}
+    DossierPage:
+      type: object
+      required: [items, total]
+      properties:
+        items: {type: array, items: {$ref: '#/components/schemas/DossierSummary'}}
+        total: {type: integer, format: int64}
+    LogEntry:
+      type: object
+      required: [actorRole, action, toStatus, occurredAt]
+      properties:
+        actorRole: {$ref: '#/components/schemas/Role'}
+        action: {type: string}
+        fromStatus: {allOf: [{$ref: '#/components/schemas/DossierStatus'}], nullable: true}
+        toStatus: {$ref: '#/components/schemas/DossierStatus'}
+        note: {type: string, nullable: true}
+        occurredAt: {type: string, format: date-time}
+    OfficerLoad:
+      type: object
+      required: [id, fullName, activeDossiers]
+      properties:
+        id: {type: string, format: uuid}
+        fullName: {type: string}
+        activeDossiers: {type: integer}
+    AcceptRequest:
+      type: object
+      required: [version]
+      properties:
+        originalChecked: {type: boolean, default: false}
+        version: {type: integer, format: int64}
+    SupplementRequest:
+      type: object
+      required: [instruction, items]
+      properties:
+        instruction: {type: string}
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [componentId]
+            properties:
+              componentId: {type: string, format: uuid}
+              note: {type: string}
+        version: {type: integer, format: int64}
+    ReasonRequest:
+      type: object
+      required: [reason, version]
+      properties:
+        reason: {type: string, minLength: 1}
+        version: {type: integer, format: int64}
+    AssignRequest:
+      type: object
+      required: [officerId, version]
+      properties:
+        officerId: {type: string, format: uuid}
+        version: {type: integer, format: int64}
+    ReturnRequest:
+      type: object
+      required: [method, version]
+      properties:
+        method: {type: string, enum: [COUNTER, ELECTRONIC]}
+        version: {type: integer, format: int64}
+    VerificationRequest:
+      type: object
+      required: [place, version]
+      properties:
+        place: {type: string, minLength: 1}
+        version: {type: integer, format: int64}
+    SubmitApprovalRequest:
+      type: object
+      required: [opinion, resultKind, version]
+      properties:
+        opinion: {type: string, minLength: 1}
+        resultKind: {type: string, enum: [ISSUED, REFUSED]}
+        version: {type: integer, format: int64}
+    ApproveRequest:
+      type: object
+      required: [password, version]
+      properties:
+        password: {type: string}
+        version: {type: integer, format: int64}
+    Dashboard:
+      type: object
+      required: [byStatus, byProcedure, byOfficer, overdueNow]
+      properties:
+        byStatus: {type: object, additionalProperties: {type: integer}}
+        byProcedure: {type: array, items: {$ref: '#/components/schemas/OnTimeStat'}}
+        byOfficer: {type: array, items: {$ref: '#/components/schemas/OnTimeStat'}}
+        overdueNow: {type: integer}
+    OnTimeStat:
+      type: object
+      required: [name, onTime, late]
+      properties:
+        name: {type: string}
+        onTime: {type: integer}
+        late: {type: integer}
+        onTimeRate: {type: number, format: double, nullable: true}
+    StaffUser:
+      type: object
+      required: [id, fullName, email, role, status]
+      properties:
+        id: {type: string, format: uuid}
+        fullName: {type: string}
+        email: {type: string, format: email}
+        role: {$ref: '#/components/schemas/Role'}
+        status: {type: string, enum: [PENDING, ACTIVE, LOCKED]}
+    StaffUserCreate:
+      type: object
+      required: [fullName, email, role, password]
+      properties:
+        fullName: {type: string}
+        email: {type: string, format: email}
+        role: {type: string, enum: [CBMC, CCTP, LEADER, ADMIN]}
+        password: {type: string, minLength: 8}
+    StaffUserUpdate:
+      type: object
+      properties:
+        role: {type: string, enum: [CBMC, CCTP, LEADER, ADMIN]}
+        status: {type: string, enum: [ACTIVE, LOCKED]}
+    Holiday:
+      type: object
+      required: [day, type]
+      properties:
+        day: {type: string, format: date}
+        type: {type: string, enum: [HOLIDAY, MAKEUP_WORKDAY]}
+        description: {type: string}

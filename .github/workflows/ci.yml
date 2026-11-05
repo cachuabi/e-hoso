@@ -4,6 +4,7 @@ name: CI
 
 on:
   pull_request:
+  workflow_dispatch:
   push:
     branches: [main]
 
@@ -23,6 +24,12 @@ jobs:
       - uses: ./.github/actions/setup-project
       - name: Quality gate
         run: bash scripts/check.sh
+      - name: Coverage of the service layer
+        if: always()
+        run: |
+          awk -F, 'NR>1 && $2 ~ /service/ {m+=$8; c+=$9} END {if (m+c) printf "SERVICE_LINE_COVERAGE %.1f%% (%d/%d)\n", 100*c/(m+c), c, m+c}' \
+            src/backend/target/site/jacoco/jacoco.csv || true
+          grep -rhoE 'tests="[0-9]+"' src/backend/target/surefire-reports/*.xml | grep -oE '[0-9]+' | awk '{s+=$1} END {print "BACKEND_TESTS " s}' || true
       - name: Traceability table (job summary)
         if: always()
         run: python3 tools/req.py rtm --markdown "$GITHUB_STEP_SUMMARY" || true
