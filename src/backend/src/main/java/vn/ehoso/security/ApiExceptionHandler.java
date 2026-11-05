@@ -1,6 +1,9 @@
 package vn.ehoso.security;
 
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
 import java.util.List;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -34,8 +37,14 @@ class ApiExceptionHandler {
     return handleApi(ApiException.invalidFields(errors));
   }
 
-  @ExceptionHandler(ConcurrencyFailureException.class)
-  ProblemDetail handleConcurrency(ConcurrencyFailureException ex) {
+  /** Covers the exceptions Spring translated and the ones a flush outside a repository throws. */
+  @ExceptionHandler({
+    ConcurrencyFailureException.class,
+    OptimisticLockException.class,
+    PessimisticLockException.class,
+    LockAcquisitionException.class
+  })
+  ProblemDetail handleConcurrency(Exception ex) {
     return handleApi(
         ApiException.conflict("VERSION_CONFLICT", "Hồ sơ vừa được thay đổi, vui lòng tải lại."));
   }
