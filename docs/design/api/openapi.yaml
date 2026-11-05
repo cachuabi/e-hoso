@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: e-HoSo API
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Đặc tả thiết kế (D14) cho REST API của e-HoSo. Mỗi thao tác ghi yêu cầu liên quan ở
     x-requirements và vai trò được phép ở x-roles, theo ma trận SRS v1.1 mục 3.7 và SDD v1.0 mục 12.2.
@@ -502,11 +502,11 @@ paths:
     put:
       tags: [admin]
       operationId: updateProcedure
-      summary: Cấu hình thời hạn, mốc 15 giờ, thành phần hồ sơ
+      summary: Cấu hình thời hạn và mốc 15 giờ; thành phần hồ sơ quản lý bằng dữ liệu khởi tạo
       x-requirements: [FR-27]
       x-roles: [ADMIN]
       parameters: [{name: code, in: path, required: true, schema: {type: string}}]
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Procedure'}}}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProcedureConfig'}}}}
       responses:
         '200': {description: Đã lưu, content: {application/json: {schema: {$ref: '#/components/schemas/Procedure'}}}}
   /admin/holidays:
@@ -612,6 +612,13 @@ components:
         documentsToPresent: {type: string}
         formSchema: {type: object}
         components: {type: array, items: {$ref: '#/components/schemas/Component'}}
+    ProcedureConfig:
+      type: object
+      required: [deadlineUnit]
+      properties:
+        deadlineUnit: {type: string, enum: [SAME_DAY, WORKING_DAYS]}
+        deadlineDays: {type: integer, nullable: true}
+        applies15hCutoff: {type: boolean}
     LookupRequest:
       type: object
       required: [code, nationalIdLast4]
@@ -675,27 +682,43 @@ components:
         dueAt: {type: string, format: date-time, nullable: true}
         deadlineLabel: {allOf: [{$ref: '#/components/schemas/DeadlineLabel'}], nullable: true}
         assignedOfficerName: {type: string, nullable: true}
+        applicantName: {type: string, nullable: true}
+        procedureCode: {type: string}
     DossierDetail:
-      allOf:
-        - {$ref: '#/components/schemas/DossierSummary'}
-        - type: object
-          required: [formData, attachments, version]
-          properties:
-            formData: {type: object}
-            attachments: {type: array, items: {$ref: '#/components/schemas/Attachment'}}
-            supplementCount: {type: integer}
-            latestSupplement: {$ref: '#/components/schemas/SupplementRequest'}
-            originalChecked: {type: boolean}
-            verificationFlag: {type: boolean}
-            verificationPlace: {type: string, nullable: true}
-            reviewOpinion: {type: string, nullable: true}
-            sendBackReason: {type: string, nullable: true}
-            resultKind: {type: string, enum: [ISSUED, REFUSED], nullable: true}
-            resultAt: {type: string, format: date-time, nullable: true}
-            onTime: {type: boolean, nullable: true, description: BR-07}
-            resultExpiresOn: {type: string, format: date, nullable: true}
-            returnMethod: {type: string, enum: [COUNTER, ELECTRONIC], nullable: true}
-            version: {type: integer, format: int64}
+      type: object
+      required: [summary, formData, attachments, version]
+      properties:
+        summary: {$ref: '#/components/schemas/DossierSummary'}
+        formData: {type: object}
+        attachments: {type: array, items: {$ref: '#/components/schemas/Attachment'}}
+        supplementCount: {type: integer}
+        latestSupplement: {allOf: [{$ref: '#/components/schemas/SupplementView'}], nullable: true}
+        originalChecked: {type: boolean}
+        requiresOriginalCheck: {type: boolean}
+        allowsVerification: {type: boolean}
+        verificationFlag: {type: boolean}
+        verificationPlace: {type: string, nullable: true}
+        reviewOpinion: {type: string, nullable: true}
+        sendBackReason: {type: string, nullable: true}
+        resultKind: {type: string, enum: [ISSUED, REFUSED], nullable: true}
+        resultAt: {type: string, format: date-time, nullable: true}
+        onTime: {type: boolean, nullable: true, description: BR-07}
+        resultExpiresOn: {type: string, format: date, nullable: true}
+        returnMethod: {type: string, enum: [COUNTER, ELECTRONIC], nullable: true}
+        version: {type: integer, format: int64}
+    SupplementView:
+      type: object
+      required: [instruction, items]
+      properties:
+        instruction: {type: string}
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              componentId: {type: string, format: uuid}
+              componentName: {type: string}
+              note: {type: string, nullable: true}
     DossierPage:
       type: object
       required: [items, total]
@@ -704,9 +727,8 @@ components:
         total: {type: integer, format: int64}
     LogEntry:
       type: object
-      required: [actorName, actorRole, action, toStatus, occurredAt]
+      required: [actorRole, action, toStatus, occurredAt]
       properties:
-        actorName: {type: string}
         actorRole: {$ref: '#/components/schemas/Role'}
         action: {type: string}
         fromStatus: {allOf: [{$ref: '#/components/schemas/DossierStatus'}], nullable: true}
