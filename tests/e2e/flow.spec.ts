@@ -1,4 +1,6 @@
 // Acceptance criteria 1 (CK-E01 to CK-E03) and the file checks K3, K4, K5 of D17 on Docker Compose.
+// The E2E workflow around this file also verifies NFR-08 (K1, K2), NFR-05 (K6) and NFR-01 (tests/perf.js);
+// the CI quality gate verifies NFR-07 (JaCoCo, Checkstyle, ESLint).
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
