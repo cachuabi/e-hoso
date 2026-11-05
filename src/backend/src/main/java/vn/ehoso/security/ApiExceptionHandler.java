@@ -1,7 +1,7 @@
 package vn.ehoso.security;
 
 import java.util.List;
-import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,8 +34,8 @@ class ApiExceptionHandler {
     return handleApi(ApiException.invalidFields(errors));
   }
 
-  @ExceptionHandler(OptimisticLockingFailureException.class)
-  ProblemDetail handleOptimisticLock(OptimisticLockingFailureException ex) {
+  @ExceptionHandler(ConcurrencyFailureException.class)
+  ProblemDetail handleConcurrency(ConcurrencyFailureException ex) {
     return handleApi(
         ApiException.conflict("VERSION_CONFLICT", "Hồ sơ vừa được thay đổi, vui lòng tải lại."));
   }
