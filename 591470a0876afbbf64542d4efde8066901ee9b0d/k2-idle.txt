@@ -1,0 +1,5 @@
+e-hoso-proxy-1 12.99MiB / 64MiB
+e-hoso-backend-1 327.1MiB / 1GiB
+e-hoso-mail-1 7.234MiB / 64MiB
+e-hoso-db-1 44.84MiB / 512MiB
+e-hoso-storage-1 6.77MiB / 256MiB
