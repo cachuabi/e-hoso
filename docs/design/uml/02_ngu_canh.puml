@@ -1,0 +1,24 @@
+@startuml 02_ngu_canh
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Ngữ cảnh hệ thống e-HoSo (Context viewpoint)
+left to right direction
+actor "Khách, Người dân\n(trình duyệt, điện thoại)" as D
+actor "CBMC, CCTP, Lãnh đạo,\nQuản trị viên (trình duyệt)" as C
+rectangle "e-HoSo\nỨng dụng web một UBND xã (giả định A4)\nDữ liệu giả lập (NFR-04)" as S #E8EDF3
+rectangle "Máy chủ SMTP\n(Mailpit trên bản demo, giả định A5)" as M
+D --> S : HTTPS: nộp, bổ sung,\nrút, tra cứu hồ sơ
+C --> S : HTTPS: tiếp nhận, thẩm định,\nphê duyệt, trả kết quả, cấu hình
+S --> M : SMTP: thông báo trạng thái,\nxác thực email, đặt lại mật khẩu
+note bottom of S
+  Ngoài phạm vi (SRS 1.2): Cổng Dịch vụ công quốc gia,
+  VNeID, thanh toán, ký số thật, ứng dụng di động gốc,
+  vận hành nhiều xã.
+end note
+@enduml

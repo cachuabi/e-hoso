@@ -1,0 +1,50 @@
+@startuml 11_state_vong_doi
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Vòng đời hồ sơ (State viewpoint) – theo SRS v1.1 mục 5, bỏ "Xoá nháp" theo QD-07
+state "Nháp\nDRAFT" as DRAFT
+state "Đã nộp\nSUBMITTED" as SUBMITTED
+state "Chờ bổ sung\nNEED_SUPPLEMENT" as NEED_SUPPLEMENT
+state "Từ chối tiếp nhận\nREJECTED" as REJECTED
+state "Đã rút\nWITHDRAWN" as WITHDRAWN
+state "Đã tiếp nhận\nACCEPTED" as ACCEPTED
+state "Đang xử lý\nIN_PROGRESS" as IN_PROGRESS
+state "Chờ phê duyệt\nPENDING_APPROVAL" as PENDING_APPROVAL
+state "Đã có kết quả\nAPPROVED" as APPROVED
+state "Đã trả kết quả\nRETURNED" as RETURNED
+[*] --> DRAFT : Người dân tạo hồ sơ (FR-07)
+DRAFT --> SUBMITTED : Nộp [đủ thành phần bắt buộc]\n/ cấp mã tham chiếu (FR-09)
+SUBMITTED --> NEED_SUPPLEMENT : CBMC yêu cầu bổ sung\n[liệt kê thiếu sót]\n(FR-16b, BR-09)
+NEED_SUPPLEMENT --> SUBMITTED : Người dân nộp lại\n(FR-11)
+SUBMITTED --> WITHDRAWN : Người dân rút\n(FR-10, BR-04)
+NEED_SUPPLEMENT --> WITHDRAWN : Người dân rút\n(FR-10, BR-04)
+SUBMITTED --> REJECTED : CBMC từ chối\n[có lý do] (FR-16c)
+SUBMITTED --> ACCEPTED : CBMC tiếp nhận\n[đối chiếu bản chính nếu chứng thực]\n/ cấp mã hồ sơ, tính hạn\n(FR-16a, FR-17)
+ACCEPTED --> IN_PROGRESS : CBMC phân công CCTP (FR-18)
+IN_PROGRESS --> PENDING_APPROVAL : CCTP trình [có ý kiến và dự thảo] (FR-19)
+PENDING_APPROVAL --> IN_PROGRESS : Lãnh đạo trả lại [có lý do] (FR-21)
+PENDING_APPROVAL --> APPROVED : Lãnh đạo phê duyệt [đúng mật khẩu]\n/ ghi thời điểm có kết quả (FR-21)
+APPROVED --> RETURNED : CBMC trả kết quả (FR-22)
+REJECTED --> [*]
+WITHDRAWN --> [*]
+RETURNED --> [*]
+note right of IN_PROGRESS
+  Tự chuyển "cần xác minh": giữ trạng thái,
+  cộng 3 ngày làm việc, một lần
+  (FR-20, BR-05)
+end note
+note right of APPROVED
+  Thời điểm vào APPROVED dùng để xét
+  đúng hạn, trễ hạn (BR-07)
+end note
+note left of DRAFT
+  OI-04 đã đóng: bỏ "Xoá nháp"
+  theo QD-07 (PM xác nhận 04/11/2026)
+end note
+@enduml

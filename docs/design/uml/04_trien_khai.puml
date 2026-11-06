@@ -1,0 +1,36 @@
+@startuml 04_trien_khai
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Triển khai bản demo bằng Docker Compose (Deployment viewpoint)
+node "Máy chủ demo (Linux hoặc máy thành viên, 8 GB RAM, NFR-08)" as H {
+  node "Docker Compose: mạng nội bộ ehoso" {
+    node "proxy (Caddy)\n:443 SPA tĩnh, /api/v1\n:9443 URL ký tới kho tệp" as P
+    node "backend (eclipse-temurin 21)" as B {
+      artifact "ehoso-backend.jar\n:8080" as J
+    }
+    database "db (postgres:17-alpine)\nvolume db-data" as DB
+    node "storage (dxflrs/garage:v2.4.1)\n:3900, volume meta, data" as G
+    node "storage-init (chạy một lần)\ntạo khoá, bucket" as GI
+    node "mail (axllent/mailpit:v1.32)\nSMTP :1025, web :8025" as M
+  }
+}
+actor "Trình duyệt" as U
+U --> P : HTTPS :443 SPA, /api/v1\nHTTPS :9443 URL ký 5 phút
+P --> J : HTTP /api/v1
+P --> G : HTTP :3900, giữ nguyên Host
+J --> DB : JDBC :5432
+J --> G : S3 API (endpoint nội bộ)
+J --> M : SMTP :1025
+GI --> G : garage CLI
+note right of G
+  S3Client: http://storage:3900
+  S3Presigner: https://<máy chủ>:9443
+  Chữ ký gồm Host, nên proxy không đổi Host và đường dẫn.
+end note
+@enduml

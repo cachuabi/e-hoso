@@ -1,0 +1,56 @@
+@startuml 09_seq_uc10
+skinparam shadowing false
+skinparam maxMessageSize 165
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title UC-10 Thẩm định và trình phê duyệt (FR-19, 20, 14, 23; BR-05)
+autonumber
+hide footbox
+actor "CCTP" as U
+participant "SPA" as F
+participant "WorkflowController" as C
+participant "AttachmentService" as A
+participant "ReviewService" as S
+participant "DeadlineCalculator" as T
+participant "DossierLifecycle" as L
+database "PostgreSQL" as D
+U -> F : mở hồ sơ được giao
+F -> C : GET /staff/dossiers/{id}
+C -> C : kiểm tra hồ sơ được giao cho CCTP này (FR-05)
+C --> F : chi tiết, tệp, nhãn hạn
+opt Cần xác minh (2a, thủ tục cho phép xác minh)
+  F -> C : POST /staff/dossiers/{id}/verification
+  C -> S : markVerification(nơi xác minh)
+  alt Thủ tục không cho phép hoặc đã cộng hạn
+    S --> F : 409 (BR-05: chỉ một lần)
+  else Hợp lệ
+    group Một giao dịch; trạng thái giữ IN_PROGRESS
+      S -> T : extend(hạn hiện tại, 3 ngày làm việc)
+      S -> D : UPDATE hạn trả, cờ xác minh, nơi xác minh
+      S -> L : ghi nhật ký và thông báo gia hạn
+      L -> D : INSERT nhật ký, INSERT thông báo
+    end
+    S --> F : 200, hạn mới
+  end
+end
+F -> C : POST /dossiers/{id}/attachments (dự thảo PDF)
+C -> A : upload(kind = DRAFT)
+A --> F : 201
+U -> F : ghi ý kiến, bấm "Trình phê duyệt"
+F -> C : POST /staff/dossiers/{id}/submit-approval
+C -> S : submitForApproval(ý kiến, loại kết quả)
+alt Thiếu ý kiến hoặc dự thảo (3a)
+  S --> F : 422, nêu lý do
+else Đủ
+  group Một giao dịch
+    S -> L : apply(SUBMIT_APPROVAL)
+    L -> D : UPDATE sang PENDING_APPROVAL, INSERT nhật ký
+  end
+  S --> F : 200
+end
+@enduml
