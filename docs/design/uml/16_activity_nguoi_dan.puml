@@ -69,7 +69,7 @@ repeat
   if (Trạng thái?) then (NEED_SUPPLEMENT)
     :Sửa biểu mẫu, thay tệp theo
     danh sách thiếu sót (UC-05);
-    :Nộp lại; giữ mã tham chiếu;
+    :Nộp lại, giữ mã tham chiếu;
   elseif (SUBMITTED hoặc NEED_SUPPLEMENT,\nmuốn rút) then (rút)
     :Rút hồ sơ (UC-06);
     |Hệ thống|

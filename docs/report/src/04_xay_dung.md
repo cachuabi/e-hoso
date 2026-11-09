@@ -175,11 +175,10 @@ Bảng: Biện pháp bảo mật theo OWASP Top 10 (2021)
 
 ## 4.7 Kết quả kiểm thử và phân tích
 
-Kiểm thử theo Test Plan v1.0 và báo cáo theo ISO/IEC/IEEE 29119-3. Số liệu lấy từ 3 nguồn, ghi rõ ở cột "Nguồn":
+Kiểm thử theo Test Plan v1.0 và báo cáo theo ISO/IEC/IEEE 29119-3. Số liệu lấy từ 2 nguồn trên cùng một phiên bản mã, ghi rõ ở cột "Nguồn":
 
 - **(1)** Chạy lại `./scripts/check.sh` trên `main`, commit `1c49d1d`, ngày 09/11/2026, exit code 0.
-- **(2)** Báo cáo kiểm thử v1.0, CI commit `591470a`.
-- **(3)** Nhánh `evidence`, lần chạy E2E cho commit `366b2e5`. Commit này không có trong lịch sử `main` hiện tại.
+- **(2)** Workflow E2E trên GitHub Actions, lần chạy `42555716523` cho commit `39648eb` (nhánh của PR #55, mã nguồn giống `1c49d1d`), ngày 09/11/2026. Log lưu trên GitHub Actions; tệp bằng chứng và ảnh màn hình được đẩy lên nhánh `evidence`. Nhánh này chỉ giữ lần chạy mới nhất, nên các lần chạy sau có thể cho số đo hơi khác.
 
 Bảng: Kết quả kiểm thử tổng hợp
 
@@ -191,15 +190,15 @@ Bảng: Kết quả kiểm thử tổng hợp
 | Truy vết | 47/47 yêu cầu có test tham chiếu | (1) |
 | Checkstyle, ESLint, Prettier | Không lỗi | (1) |
 | Đầu cuối (Playwright trên Docker Compose) | 9/9 đạt trên x86 và arm64 | (2) |
-| Hiệu năng k6: 50 người dùng ảo, 90 giây, chỉ đọc | p95 = 8,53 ms (API); 7493 yêu cầu; lỗi 0% | (3) |
-| Tải lên tệp 10 MB | 161 ms, không giới hạn băng thông | (3) |
-| RAM toàn hệ thống | Rỗi khoảng 391 MiB; sau luồng kiểm thử khoảng 443 MiB | (3) |
-| URL ký sau khi hết hạn | Trả 400 | (3) |
-| Khởi động lại | 5 hồ sơ trước, 5 hồ sơ sau | (3) |
-| OWASP ZAP baseline | High 0, Medium 0, Low 0; 4 mục Informational | (3) |
-| `npm audit` | 0 lỗ hổng | (3) |
-| axe (WCAG 2 A, AA) | 0 vi phạm trên 4 màn hình | (3) |
-| Trình duyệt (Playwright) | chromium, firefox, webkit đạt | (3) |
+| Hiệu năng k6: 50 người dùng ảo, 90 giây, chỉ đọc | p95 = 7,89 ms; 7495 yêu cầu; lỗi 0% | (2) |
+| Tải lên tệp 10 MB | 158 ms, không giới hạn băng thông | (2) |
+| RAM toàn hệ thống | Rỗi khoảng 390 MiB; sau luồng kiểm thử khoảng 440 MiB | (2) |
+| URL ký sau khi hết hạn | Trả 400 | (2) |
+| Khởi động lại | 5 hồ sơ trước, 5 hồ sơ sau | (2) |
+| OWASP ZAP baseline | High 0, Medium 0, Low 0; 4 mục Informational | (2) |
+| `npm audit` | 0 lỗ hổng | (2) |
+| axe (WCAG 2 A, AA) | 0 vi phạm trên 4 màn hình | (2) |
+| Trình duyệt (Playwright) | chromium, firefox, webkit đạt | (2) |
 
 Bảng: Năm tiêu chí nghiệm thu MVP
 

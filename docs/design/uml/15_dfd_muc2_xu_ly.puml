@@ -25,11 +25,15 @@ database "D1 Tài khoản" as D1
 database "D3 Danh mục, lịch" as D3
 database "D4 Hồ sơ, yêu cầu bổ sung" as D4
 database "D5 Tệp" as D5
+database "D6 Nhật ký" as D6
 database "D8 Bộ đếm mã hồ sơ" as D8
 
 CBMC --> P41 : quyết định, thiếu sót,\nlý do từ chối, đã đối chiếu bản chính
 D4 --> P41 : hàng đợi SUBMITTED\n(cũ nhất trước)
 P41 --> D4 : NEED_SUPPLEMENT, REJECTED,\nphiếu yêu cầu bổ sung
+P41 --> CBMC : hàng đợi, chi tiết hồ sơ,\ntệp, nhật ký
+D5 --> P41 : tệp hồ sơ
+D6 --> P41 : nhật ký hồ sơ
 P41 --> P42 : hồ sơ được tiếp nhận
 D3 --> P42 : thời hạn, mốc 15:00,\nngày nghỉ, ngày làm bù
 D8 <--> P42 : số thứ tự trong ngày
@@ -43,11 +47,14 @@ P43 --> D4 : IN_PROGRESS, người được giao
 
 CCTP --> P44 : ý kiến, dự thảo PDF,\nnơi cần xác minh
 D3 --> P44 : cho phép xác minh,\nngày nghỉ
+P44 --> CCTP : hồ sơ được giao
 P44 --> D5 : dự thảo (DRAFT)
 P44 --> D4 : hạn + 3 ngày làm việc,\nPENDING_APPROVAL
 
 LD --> P45 : đồng ý + mật khẩu,\nhoặc lý do trả lại
 D1 --> P45 : mã băm mật khẩu,\nsố lần sai
+P45 --> LD : hồ sơ, ý kiến, dự thảo
+D5 --> P45 : dự thảo
 P45 --> D5 : dự thảo thành kết quả (RESULT)
 P45 --> D4 : APPROVED + thời điểm có kết quả,\nhoặc IN_PROGRESS
 P45 --> D1 : số lần sai, khoá 15 phút

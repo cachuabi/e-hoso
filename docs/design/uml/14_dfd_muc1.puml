@@ -52,10 +52,11 @@ P3 --> P6 : sự kiện chuyển trạng thái
 E2 --> P4 : quyết định tiếp nhận,\nphân công, ý kiến, phê duyệt
 P4 --> E2 : hàng đợi, chi tiết,\nnhật ký hồ sơ
 D3 --> P4 : thời hạn, ngày nghỉ
-D1 --> P4 : CCTP hoạt động,\nmật khẩu phê duyệt
+D1 <--> P4 : CCTP hoạt động, mật khẩu\nphê duyệt, số lần sai
 P4 <--> D4 : trạng thái, mã hồ sơ,\nhạn trả
 P4 <--> D5 : dự thảo, kết quả
 P4 --> P6 : sự kiện chuyển trạng thái
+D6 --> P4 : nhật ký hồ sơ
 
 E1 --> P5 : mã, 4 số cuối định danh
 D4 --> P5 : thủ tục, trạng thái,\nngày hẹn

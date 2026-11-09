@@ -17,7 +17,7 @@ Bảng: Lịch sử phiên bản tài liệu
 | Phiên bản | Ngày | Người thực hiện | Nội dung |
 |---|---|---|---|
 | 1.0 | 05/11/2026 | Mai Xuân Đạt điều phối, Claude thực hiện theo vai | Báo cáo tóm tắt 11 trang, số liệu từ CI commit `591470a` |
-| 2.0 (nháp) | 09/11/2026 | Claude soạn theo outline đã chốt ngày 09/11/2026 | Viết lại theo cấu trúc 5 chương của đề bài; thêm DFD mức 1, mức 2, 3 sơ đồ activity, 5 sơ đồ trạng thái, sơ đồ lớp thiết kế, 2 sơ đồ kiến trúc; số liệu kiểm thử cập nhật trên `main` (commit `1c49d1d`). **Chờ anh Đỗ Văn Tiến duyệt** |
+| 2.0 (nháp) | 09/11/2026 | Claude soạn theo outline đã chốt ngày 09/11/2026 | Viết lại theo cấu trúc 5 chương của đề bài; thêm DFD mức 1, mức 2, 3 sơ đồ activity, 5 sơ đồ trạng thái, sơ đồ lớp thiết kế, 2 sơ đồ kiến trúc; số liệu kiểm thử cập nhật trên `main` (commit `1c49d1d`) và lần chạy E2E cho `39648eb`. Đã review chéo theo vai (RV-M5-01, RV-M5-02). **Chờ anh Đỗ Văn Tiến duyệt** |
 
 **Ngày trình bày cuối:** ? *(để trống theo quyết định ngày 09/11/2026; mốc "April 10th" trong mẫu đề là phần sót lại)*.
 
@@ -86,7 +86,7 @@ Bảng: Kết quả chính của dự án
 | Truy vết | 47/47 yêu cầu FR, NFR, BR có test tham chiếu |
 | Test backend | 79 test đạt; độ phủ dòng tầng service 93,4% (1058/1133 dòng), ngưỡng 70% |
 | Test frontend | 5 test đạt |
-| Đầu cuối trên Docker Compose | 9/9 test Playwright đạt trên x86 và arm64 (Báo cáo kiểm thử v1.0) |
+| Đầu cuối trên Docker Compose | 9/9 test Playwright đạt trên x86 và arm64 |
 | Tiêu chí nghiệm thu MVP | 5/5 đạt trên môi trường tự động |
 | Chưa kiểm | 3 người dùng thật (CK-U02); hiệu năng trên đúng máy 2 vCPU, 4 GB; Safari, Edge thật |
 

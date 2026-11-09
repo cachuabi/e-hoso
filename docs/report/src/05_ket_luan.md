@@ -9,7 +9,7 @@
   - tra cứu công khai dùng kiểu dữ liệu riêng chỉ 4 trường;
   - nhật ký bị CSDL từ chối sửa, xoá;
   - mọi chuyển trạng thái đi qua một điểm duy nhất.
-- **Triển khai.** Hệ thống chạy bằng một lệnh trên cả x86 và arm64, dùng khoảng 443 MiB RAM sau luồng kiểm thử.
+- **Triển khai.** Hệ thống chạy bằng một lệnh trên cả x86 và arm64, dùng khoảng 440 MiB RAM sau luồng kiểm thử.
 - **Tài liệu.** Bộ tài liệu đi từ khảo sát đến kiểm thử theo các chuẩn ISO/IEC/IEEE 29148, IEEE 1016, ISO/IEC/IEEE 29119-3, có truy vết hai chiều.
 
 ## 5.2 Hạn chế

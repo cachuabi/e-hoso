@@ -41,12 +41,12 @@ Bảng: Kho dữ liệu
 
 | Mã | Kho dữ liệu | Bảng hoặc nơi lưu | Tiến trình ghi | Tiến trình đọc |
 |---|---|---|---|---|
-| D1 | Tài khoản | `app_user` | 1.0 | 1.0, 4.0 |
+| D1 | Tài khoản | `app_user` | 1.0; 4.0 (đếm sai mật khẩu phê duyệt) | 1.0, 4.0 |
 | D2 | Mã xác thực | `auth_token` | 1.0 | 1.0 |
 | D3 | Danh mục, lịch | `procedure`, `dossier_component`, `holiday` | 2.0 | 2.0, 3.0, 4.0 |
 | D4 | Hồ sơ, yêu cầu bổ sung | `dossier`, `supplement_request`, `supplement_item` | 3.0, 4.0 | 3.0, 4.0, 5.0, 8.0 |
 | D5 | Tệp | `attachment` và đối tượng trong kho S3 | 3.0, 4.0 | 3.0, 4.0 |
-| D6 | Nhật ký | `processing_log`, `admin_audit_log` | 6.0 | 4.0 (xem nhật ký) |
+| D6 | Nhật ký | `processing_log`, `admin_audit_log` | 6.0 | 4.0 (cán bộ xem nhật ký hồ sơ) |
 | D7 | Hàng đợi thông báo | `notification` | 1.0, 6.0, 7.0 | 7.0 |
 
 Bảng: Luồng dữ liệu chính
@@ -78,7 +78,7 @@ Bảng: Tiến trình con của 4.0
 | 4.5 | Phê duyệt hoặc trả lại | Đồng ý kèm mật khẩu, hoặc lý do trả lại | APPROVED kèm thời điểm có kết quả, dự thảo thành kết quả; hoặc IN_PROGRESS | BR-07, BR-08; sai mật khẩu 3 lần khoá 15 phút |
 | 4.6 | Trả kết quả | Hình thức trả | RETURNED, thời điểm trả | FR-22 |
 
-Kho D8 (bộ đếm mã hồ sơ, bảng `dossier_code_counter`) chỉ xuất hiện ở mức 2 vì nó là chi tiết bên trong của 4.2.
+Mức 2 cân bằng với mức 1: mọi luồng vào, ra của 4.0 ở mức 1 (với E2, D1, D3, D4, D5, D6 và 6.0) đều xuất hiện ở ít nhất một tiến trình con. Kho D8 (bộ đếm mã hồ sơ, bảng `dossier_code_counter`) chỉ xuất hiện ở mức 2 vì nó là chi tiết bên trong của 4.2.
 
 ### Thay đổi so với mốc M2
 
