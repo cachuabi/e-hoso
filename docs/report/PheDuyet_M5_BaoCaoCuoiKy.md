@@ -8,12 +8,12 @@ Tầng 1 (tự kiểm) và tầng 2 (review chéo) do Claude thực hiện theo 
 | ID | Sản phẩm | Tác giả (vai) | Phiếu review | Kết luận review | PM duyệt |
 |---|---|---|---|---|---|
 | D12b | 14 sơ đồ bổ sung `docs/design/uml/14` → `26` | Khang | RV-M5-01 (Quang Anh) | Đạt | ? |
-| D29 | Báo cáo cuối kỳ 2.0, bản nháp tiếng Việt | Đạt | RV-M5-02 (Khang) | Đạt có điều kiện: B-03, B-04, B-05 | ? |
+| D29 | Báo cáo cuối kỳ 2.0, bản nháp tiếng Việt | Đạt | RV-M5-02 (Khang) | Đạt có điều kiện: B-04, B-05 (B-03 đã quyết) | ? |
 
 ## 2. Quyết định cần PM xác nhận
 | Mã | Nội dung | Đề xuất | PM |
 |---|---|---|---|
-| B-03 | Bản nháp khoảng 58 trang so với mục tiêu 45–50 | Chuyển đặc tả 4 UC và bảng 10 bảng gọn sang phụ lục, bỏ bảng luồng dữ liệu; hoặc giữ nguyên nếu không giới hạn cứng | ? |
+| B-03 | Bản nháp khoảng 58 trang so với mục tiêu 45–50 | Chuyển đặc tả 4 UC và bảng 10 bảng gọn sang phụ lục, bỏ bảng luồng dữ liệu; hoặc giữ nguyên nếu không giới hạn cứng | **Giữ nguyên** (Tiến, 09/11/2026) |
 | B-04 | Bìa: "Trường Quốc tế – Đại học Quốc gia Hà Nội", "Hà Nội, 11/2026" | Xác nhận, hoặc sửa | ? |
 | OI-02 | Thời hạn, mức gia hạn khi xác minh của thủ tục xác nhận tình trạng hôn nhân | PM đối chiếu văn bản hiện hành; nếu khác thì sửa cấu hình (FR-27) và mục 1.4 | ? |
 
