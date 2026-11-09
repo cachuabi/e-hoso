@@ -1,0 +1,109 @@
+@startuml 24_class_thiet_ke
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Lớp thiết kế (a): 7 controller → service, các phụ thuộc chính (mũi tên = chiều điều hướng, theo hàm dựng trong mã)
+hide empty fields
+hide empty methods
+skinparam classFontSize 11
+left to right direction
+package "Tầng trình bày (REST /api/v1)" {
+  class AuthController <<controller>>
+  class AdminUserController <<controller>>
+  class CatalogController <<controller>>
+  class DossierController <<controller>>
+  class AttachmentController <<controller>>
+  class WorkflowController <<controller>>
+  class DashboardController <<controller>>
+}
+package "Tầng nghiệp vụ (các gói service)" {
+  class AuthService {
+    +register() +verifyEmail() +login()
+    +refresh() +requestPasswordReset()
+  }
+  class StaffUserService {
+    +list() +create() +update()
+  }
+  class CatalogService {
+    +list() +get() +configure()
+    +holidays() +addHoliday() +deleteHoliday()
+  }
+  class DossierService {
+    +createDraft() +updateForm() +submit()
+    +resubmit() +withdraw() +listMine() +lookup()
+  }
+  class DossierLifecycle {
+    -ALLOWED: 13 cặp (trạng thái, hành động)
+    +check() +apply()
+  }
+  class AttachmentService {
+    +upload() +delete() +downloadUrl()
+  }
+  class IntakeService {
+    +accept() +requestSupplement()
+    +reject() +assign() +returnResult()
+  }
+  class ReviewService {
+    +markVerification() +submitForApproval()
+  }
+  class ApprovalService {
+    +approve() +sendBack()
+  }
+  class StaffQueryService {
+    +list() +detail() +logs()
+  }
+  class DeadlineCalculator {
+    +dueAt() +extend()
+  }
+  class WorkingCalendar {
+    +isWorkingDay() +addWorkingDays()
+  }
+  class DashboardService {
+    +dashboard() +exportCsv()
+  }
+  class AuditWriter {
+    +append()
+  }
+  class NotificationQueue {
+    +enqueue()
+  }
+  interface AttachmentGuard
+  interface FileStoragePort
+}
+package "Hạ tầng (infra)" {
+  class S3FileStorage
+}
+
+AuthController --> AuthService
+AdminUserController --> StaffUserService
+CatalogController --> CatalogService
+DossierController --> DossierService
+AttachmentController --> AttachmentService
+WorkflowController --> IntakeService
+WorkflowController --> ReviewService
+WorkflowController --> ApprovalService
+WorkflowController --> StaffQueryService
+DashboardController --> DashboardService
+
+StaffUserService --> AuthService
+AuthService --> NotificationQueue
+DossierService --> DossierLifecycle
+IntakeService --> DossierLifecycle
+ReviewService --> DossierLifecycle
+ApprovalService --> DossierLifecycle
+IntakeService --> DeadlineCalculator
+ReviewService --> DeadlineCalculator
+DeadlineCalculator --> WorkingCalendar
+DossierLifecycle --> AuditWriter
+DossierLifecycle --> NotificationQueue
+AttachmentService --> AttachmentGuard
+AttachmentService --> FileStoragePort
+S3FileStorage ..|> FileStoragePort
+
+@enduml

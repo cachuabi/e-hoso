@@ -1,0 +1,41 @@
+@startuml 25_kien_truc_client_server
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Kiến trúc client–server nhiều tầng của e-HoSo
+rectangle "Tầng client" as T1 {
+  component "Trình duyệt (máy tính, điện thoại 360 px)\nSPA React 19 + TypeScript\nportal người dân, màn hình cán bộ, quản trị" as SPA
+}
+rectangle "Tầng web" as T2 {
+  component "Caddy reverse proxy\nHTTPS :443 tệp tĩnh và /api/v1\nHTTPS :9443 URL ký tới kho tệp\ntiêu đề bảo mật, CSP" as PROXY
+}
+rectangle "Tầng ứng dụng: Spring Boot 3.5, Java 21" as T3 {
+  component "Trình bày\n7 controller REST, springdoc OpenAPI 3" as C
+  component "Bảo mật\nJWT 30 phút + refresh 7 ngày,\nRBAC theo URL và theo chủ hồ sơ" as SEC
+  component "Nghiệp vụ\n9 module: account, catalog, dossier, file,\nworkflow, notification, audit, dashboard, security" as SVC
+  component "Truy cập dữ liệu\nSpring Data JPA, Flyway" as REPO
+  component "Tích hợp\nAWS SDK v2 (S3), JavaMailSender" as INT
+}
+rectangle "Tầng dữ liệu và dịch vụ phụ trợ" as T4 {
+  database "PostgreSQL 17\n13 bảng" as DB
+  database "Garage (S3)\ntệp hồ sơ" as S3
+  component "Mailpit (SMTP)" as MAIL
+}
+SPA --> PROXY : HTTPS, JSON\nAuthorization: Bearer
+PROXY --> C : HTTP nội bộ
+C --> SEC
+C --> SVC
+SVC --> REPO
+SVC --> INT
+REPO --> DB : JDBC
+INT --> S3 : S3 API
+INT --> MAIL : SMTP
+SPA ..> PROXY : tải tệp qua URL ký 5 phút
+PROXY ..> S3 : giữ nguyên Host
+@enduml

@@ -1,0 +1,41 @@
+@startuml 19_state_tai_khoan
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title State – Tài khoản người dùng (bảng app_user, FR-01–04, UC-15)
+[*] --> PENDING : Người dân đăng ký (FR-01)\n/ xếp email xác thực 24 giờ
+[*] --> ACTIVE : Quản trị viên tạo tài khoản cán bộ (FR-04)
+state "Chờ xác thực\nPENDING" as PENDING
+state "Hoạt động\nACTIVE" as ACTIVE {
+  state "Bình thường" as NORMAL
+  state "Tạm khoá đăng nhập\n(locked_until > hiện tại)" as TEMP
+  [*] --> NORMAL
+  NORMAL --> NORMAL : đăng nhập sai [lần sai < 5] / tăng failed_logins;\nđăng nhập đúng / failed_logins = 0
+  NORMAL --> TEMP : đăng nhập sai lần thứ 5\n/ khoá 15 phút (FR-02)
+  TEMP --> NORMAL : hết 15 phút, hoặc đặt lại\nmật khẩu thành công (FR-03)
+}
+state "Bị khoá\nLOCKED" as LOCKED
+PENDING --> PENDING : gửi lại liên kết xác thực
+PENDING --> ACTIVE : bấm liên kết còn hạn\n(dùng một lần)
+ACTIVE --> LOCKED : Quản trị viên khoá [là cán bộ,\nkhông tự khoá, không phải QTV cuối]\n/ thu hồi refresh token
+LOCKED --> ACTIVE : Quản trị viên mở khoá
+note bottom of PENDING
+  Đăng nhập khi PENDING trả 403
+  EMAIL_NOT_VERIFIED. Đếm sai và khoá
+  15 phút (locked_until) áp dụng cho
+  mọi trạng thái, kể cả PENDING.
+end note
+note right of LOCKED
+  Không có trạng thái xoá: tài khoản
+  được giữ vì nhật ký tham chiếu tới.
+  Lãnh đạo sai mật khẩu phê duyệt 3 lần
+  bị khoá phê duyệt 15 phút
+  (approval_locked_until), không đổi status.
+end note
+@enduml

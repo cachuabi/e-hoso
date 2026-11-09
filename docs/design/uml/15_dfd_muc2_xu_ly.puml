@@ -1,0 +1,70 @@
+@startuml 15_dfd_muc2_xu_ly
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title DFD mức 2 – phân rã tiến trình 4.0 Xử lý hồ sơ (FR-15–22)
+rectangle "E2a\nCán bộ một cửa (CBMC)" as CBMC
+rectangle "E2b\nCông chức tư pháp – hộ tịch (CCTP)" as CCTP
+rectangle "E2c\nLãnh đạo UBND xã" as LD
+
+usecase "4.1\nKiểm tra, tiếp nhận,\nyêu cầu bổ sung, từ chối\n(FR-15, 16)" as P41
+usecase "4.2\nCấp mã hồ sơ,\ntính ngày hẹn trả\n(FR-17, BR-02, 03)" as P42
+usecase "4.3\nPhân công CCTP\n(FR-18)" as P43
+usecase "4.4\nThẩm định, xác minh,\ntrình phê duyệt\n(FR-19, 20, BR-05)" as P44
+usecase "4.5\nPhê duyệt\nhoặc trả lại\n(FR-21, BR-07, 08)" as P45
+usecase "4.6\nTrả kết quả\n(FR-22)" as P46
+usecase "6.0 Ghi nhật ký\n(DFD mức 1)" as P6
+
+database "D1 Tài khoản" as D1
+database "D3 Danh mục, lịch" as D3
+database "D4 Hồ sơ, yêu cầu bổ sung" as D4
+database "D5 Tệp" as D5
+database "D8 Bộ đếm mã hồ sơ" as D8
+
+CBMC --> P41 : quyết định, thiếu sót,\nlý do từ chối, đã đối chiếu bản chính
+D4 --> P41 : hàng đợi SUBMITTED\n(cũ nhất trước)
+P41 --> D4 : NEED_SUPPLEMENT, REJECTED,\nphiếu yêu cầu bổ sung
+P41 --> P42 : hồ sơ được tiếp nhận
+D3 --> P42 : thời hạn, mốc 15:00,\nngày nghỉ, ngày làm bù
+D8 <--> P42 : số thứ tự trong ngày
+P42 --> D4 : ACCEPTED, mã HS, hạn trả
+P42 --> CBMC : phiếu hẹn
+
+CBMC --> P43 : CCTP được chọn
+D1 --> P43 : CCTP đang hoạt động
+D4 --> P43 : số hồ sơ đang xử lý
+P43 --> D4 : IN_PROGRESS, người được giao
+
+CCTP --> P44 : ý kiến, dự thảo PDF,\nnơi cần xác minh
+D3 --> P44 : cho phép xác minh,\nngày nghỉ
+P44 --> D5 : dự thảo (DRAFT)
+P44 --> D4 : hạn + 3 ngày làm việc,\nPENDING_APPROVAL
+
+LD --> P45 : đồng ý + mật khẩu,\nhoặc lý do trả lại
+D1 --> P45 : mã băm mật khẩu,\nsố lần sai
+P45 --> D5 : dự thảo thành kết quả (RESULT)
+P45 --> D4 : APPROVED + thời điểm có kết quả,\nhoặc IN_PROGRESS
+P45 --> D1 : số lần sai, khoá 15 phút
+
+CBMC --> P46 : hình thức trả\n(tại quầy, điện tử)
+D4 --> P46 : hồ sơ APPROVED
+P46 --> D4 : RETURNED, thời điểm trả
+
+P41 --> P6 : sự kiện
+P42 --> P6 : sự kiện
+P43 --> P6 : sự kiện
+P44 --> P6 : sự kiện
+P45 --> P6 : sự kiện
+P46 --> P6 : sự kiện
+note bottom of P6
+  Mỗi sự kiện ghi 1 dòng nhật ký và xếp
+  thông báo email trong cùng giao dịch
+  với chuyển trạng thái (FR-23, NFR-05).
+end note
+@enduml

@@ -6,6 +6,7 @@
 | `requirements/` | SRS v1.0, danh mục yêu cầu, báo cáo khảo sát | M1 – 01/11 |
 | `design/` | SDD (IEEE 1016), UML, ERD, OpenAPI, prototype | M2 – 08/11 |
 | `test/` | Test Plan, báo cáo kiểm thử (ISO/IEC/IEEE 29119-3) | M2, M5 |
+| `report/` | Báo cáo cuối kỳ: outline, nguồn Markdown (`src/`), bản `.docx`; dựng lại bằng `python docs/report/build_docx.py` (cần `python-docx`) | M5 |
 | `../meetings/` | Biên bản họp (Meetings Repository) | hằng tuần |
 | `QUY_TRINH.md`, `templates/` | Quy trình làm việc, duyệt 3 tầng; mẫu phiếu review, phiếu phê duyệt mốc, nhật ký ngày | xuyên suốt |
 
