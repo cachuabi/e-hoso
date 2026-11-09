@@ -1,0 +1,52 @@
+@startuml 12_activity_quy_trinh
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Quy trình giải quyết hồ sơ – luồng chính (sửa R-09: ghi nhận đúng hạn sau phê duyệt, theo BR-07)
+|Người dân|
+start
+:Chọn thủ tục, điền biểu mẫu điện tử;
+:Đính kèm tệp, nộp hồ sơ;
+|Hệ thống|
+:Kiểm tra thành phần bắt buộc,
+cấp mã tham chiếu, gửi email xác nhận;
+|Cán bộ một cửa|
+:Kiểm tra hồ sơ trong hàng đợi;
+while (Hồ sơ đủ, hợp lệ?) is (thiếu)
+  :Yêu cầu bổ sung, ghi đủ thiếu sót trong một lần;
+  |Người dân|
+  :Bổ sung hồ sơ, nộp lại;
+  |Cán bộ một cửa|
+  :Kiểm tra lại hồ sơ;
+endwhile (đủ)
+if (Thủ tục chứng thực?) then (có)
+  :Đối chiếu bản chính người dân mang đến;
+endif
+:Tiếp nhận hồ sơ;
+|Hệ thống|
+:Cấp mã hồ sơ, tính ngày hẹn trả,
+gửi email cho người dân;
+|Cán bộ một cửa|
+:Phân công CCTP;
+|Công chức tư pháp – hộ tịch|
+repeat
+  :Thẩm định, ghi ý kiến, đính kèm dự thảo;
+  :Trình phê duyệt;
+  |Lãnh đạo UBND xã|
+  :Xem xét hồ sơ và dự thảo;
+repeat while (Đồng ý?) is (không, trả lại kèm lý do) not (có)
+:Phê duyệt (ký mô phỏng);
+|Hệ thống|
+:Chuyển Đã có kết quả, ghi thời điểm có kết quả,
+ghi nhận đúng hạn, trễ hạn (BR-07), gửi email;
+|Cán bộ một cửa|
+:Trả kết quả, ghi hình thức trả;
+|Hệ thống|
+:Chuyển Đã trả kết quả, ghi nhật ký, gửi email;
+stop
+@enduml

@@ -1,0 +1,65 @@
+@startuml 07_seq_uc04
+skinparam shadowing false
+skinparam maxMessageSize 165
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title UC-04 Nộp hồ sơ trực tuyến (FR-07, 08, 09, 14, 23; NFR-04, 05)
+autonumber
+hide footbox
+actor "Người dân" as U
+participant "SPA" as F
+participant "Controller" as C
+participant "AttachmentService" as A
+participant "DossierService" as S
+participant "DossierLifecycle" as L
+database "PostgreSQL" as D
+participant "Kho S3" as K
+participant "Bộ gửi\nthông báo" as N
+U -> F : điền biểu mẫu
+F -> C : POST /dossiers (Nháp)
+C -> S : saveDraft
+S -> D : INSERT (DRAFT)
+S --> F : 201, id
+group Lặp cho mỗi tệp (Q-01: ghi tệp trước, ghi CSDL sau)
+  F -> C : POST /dossiers/{id}/attachments
+  C -> A : upload
+  A -> A : kiểm tra chủ hồ sơ, loại theo nội dung,\n≤ 10 MB, tổng ≤ 30 MB
+  alt Tệp không hợp lệ
+    A --> F : 422, nêu lý do (luồng 3b)
+  else Hợp lệ
+    A -> K : PUT ho-so/<id hồ sơ>/<uuid>
+    A -> D : giao dịch: khoá dòng hồ sơ,\nkiểm tra lại tổng dung lượng, INSERT tệp
+    alt Giao dịch lỗi
+      A -> K : DELETE khoá vừa ghi (bù trừ)
+      A --> F : 409 hoặc 422
+    else Thành công
+      A --> F : 201
+    end
+  end
+end
+U -> F : bấm "Nộp hồ sơ"
+F -> C : POST /dossiers/{id}/submit
+C -> S : submit
+S -> S : kiểm tra biểu mẫu,\nđủ thành phần bắt buộc
+alt Thiếu hoặc sai (luồng 5a)
+  S --> F : 422, lỗi theo từng trường
+else Đủ
+  group Một giao dịch (NFR-05)
+    S -> L : apply(SUBMIT)
+    L -> L : kiểm tra chuyển\nDRAFT → SUBMITTED
+    L -> D : UPDATE trạng thái, mã tham chiếu,\nthời điểm nộp (kiểm tra version)
+    L -> D : INSERT nhật ký (FR-23)
+    L -> D : INSERT thông báo PENDING
+  end
+  S --> F : 200, mã tham chiếu TC-xxxxxxxx
+end
+... sau khi giao dịch hoàn tất ...
+N -> D : đọc thông báo PENDING
+N -> N : gửi SMTP, lỗi thì thử lại, tối đa 3 lần (luồng 6a)
+N -> D : cập nhật SENT hoặc FAILED
+@enduml

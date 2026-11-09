@@ -1,0 +1,50 @@
+@startuml 03_thanh_phan
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Thành phần và phụ thuộc (Composition viewpoint)
+left to right direction
+component "SPA React 19 + TypeScript\n(portal, staff, admin)" as FE
+package "Backend Spring Boot 3.5 (monolith theo module)" {
+  component "security\nJWT, RBAC, lỗi chung" as SEC
+  component "account\nFR-01–04" as ACC
+  component "catalog\nFR-06, 27, 28" as CAT
+  component "dossier\nFR-07–13, vòng đời" as DOS
+  component "workflow\nFR-15–22, BR-01–03, 05, 08" as WF
+  component "file\nFR-08, tải URL ký" as FIL
+  component "notification\nFR-14, hàng đợi gửi" as NOT
+  component "audit\nFR-23" as AUD
+  component "dashboard\nFR-24–26, BR-06, 07" as DAS
+}
+database "PostgreSQL 17" as DB
+cloud "Kho tệp S3\n(Garage)" as S3
+cloud "SMTP\n(Mailpit)" as SMTP
+FE --> SEC : REST /api/v1
+SEC --> ACC : tải người dùng,\nvai trò theo từng yêu cầu
+WF --> DOS : chuyển trạng thái
+WF --> ACC : xác thực mật khẩu,\ndanh sách CCTP
+WF --> CAT : thời hạn, ngày nghỉ
+DOS --> CAT : thành phần, biểu mẫu
+DOS --> FIL : tệp theo thành phần;\ncài đặt AttachmentGuard
+DOS --> AUD : ghi nhật ký
+DOS --> NOT : xếp hàng thông báo
+ACC --> NOT : email xác thực,\nđặt lại mật khẩu
+DAS --> DOS : đọc số liệu
+WF --> DAS : nhãn hạn (BR-06)
+ACC --> DB
+CAT --> DB
+DOS --> DB
+WF --> DB
+FIL --> DB
+NOT --> DB
+AUD --> DB
+DAS --> DB
+FIL --> S3 : FileStoragePort\n(AWS SDK v2)
+NOT --> SMTP : JavaMailSender
+FE ..> S3 : tải tệp qua URL ký 5 phút
+@enduml
