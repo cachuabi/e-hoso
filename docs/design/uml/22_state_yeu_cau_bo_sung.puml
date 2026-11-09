@@ -1,0 +1,26 @@
+@startuml 22_state_yeu_cau_bo_sung
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title State – Yêu cầu bổ sung (supplement_request, supplement_item; FR-16, FR-11, BR-09)
+state "Đang chờ bổ sung\nhồ sơ ở NEED_SUPPLEMENT" as OPEN
+state "Đã được đáp ứng\nngười dân nộp lại" as DONE
+state "Đóng do rút hồ sơ" as CLOSED
+[*] --> OPEN : CBMC yêu cầu bổ sung\n[≥ 1 thành phần thiếu, có hướng dẫn]\n/ supplement_count + 1
+OPEN --> DONE : Người dân nộp lại (RESUBMIT)\n[đủ thành phần bắt buộc]
+OPEN --> CLOSED : Người dân rút hồ sơ (WITHDRAW)
+DONE --> [*]
+CLOSED --> [*]
+note right of OPEN
+  Phiếu và danh sách thiếu sót không sửa sau khi lập
+  (một lần, BR-09). Trạng thái suy ra từ trạng thái
+  hồ sơ và phiếu mới nhất; bảng không có cột status.
+  Lần bổ sung sau tạo phiếu mới.
+end note
+@enduml

@@ -1,0 +1,75 @@
+@startuml 18_activity_lanh_dao_quan_tri
+
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Activity – Lãnh đạo, Quản trị viên và Hệ thống (UC-14 → UC-17): ba luồng độc lập
+|Lãnh đạo UBND xã|
+|Quản trị viên|
+|Hệ thống|
+|Dịch vụ email|
+|Lãnh đạo UBND xã|
+start
+:Mở dashboard, chọn khoảng thời gian (UC-14);
+|Hệ thống|
+:Đếm hồ sơ theo trạng thái, theo thủ tục;
+:Tính đúng hạn, trễ hạn theo
+thời điểm có kết quả (BR-07);
+|Lãnh đạo UBND xã|
+if (Cần xuất báo cáo?) then (có)
+  |Hệ thống|
+  :Tạo CSV UTF-8;
+  |Lãnh đạo UBND xã|
+  :Tải CSV (FR-26);
+endif
+stop
+|Quản trị viên|
+start
+if (Việc cần làm?) then (tài khoản cán bộ)
+  :Tạo tài khoản, đổi vai trò,
+  khoá hoặc mở khoá (UC-15);
+  |Hệ thống|
+  if (Tự khoá, tự hạ quyền hoặc
+  khoá quản trị viên cuối?) then (có)
+    :Từ chối 409;
+  else (không)
+    :Lưu thay đổi, ghi nhật ký quản trị;
+    :Nếu khoá: thu hồi refresh token;
+    note right: vai trò đọc lại từ CSDL ở mỗi\nyêu cầu nên có hiệu lực ngay
+  endif
+else (cấu hình)
+  |Quản trị viên|
+  :Sửa thời hạn, thành phần thủ tục,
+  thêm hoặc xoá ngày nghỉ, ngày làm bù (UC-16);
+  |Hệ thống|
+  :Lưu cấu hình, ghi nhật ký quản trị;
+  note right: thời hạn mới chỉ áp dụng cho\nhồ sơ tiếp nhận sau khi lưu
+endif
+stop
+|Hệ thống|
+start
+repeat
+  :Lấy tối đa 20 email PENDING
+  đã đến hạn gửi (UC-17);
+  |Dịch vụ email|
+  if (Gửi được?) then (được)
+    |Hệ thống|
+    :Đánh dấu SENT, xoá nội dung;
+  else (lỗi)
+    |Hệ thống|
+    if (Đã thử lại 3 lần?) then (rồi)
+      :Đánh dấu FAILED, ghi lỗi;
+    else (chưa)
+      :Tăng số lần thử, hẹn lại sau
+      số phút bằng số lần thử;
+    endif
+  endif
+  :Chờ 5 giây;
+repeat while (Ứng dụng còn chạy?) is (có) not (không)
+stop
+@enduml

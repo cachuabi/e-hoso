@@ -1,0 +1,59 @@
+@startuml 24b_class_thiet_ke_du_lieu
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Lớp thiết kế (b): service → repository (Spring Data JPA) → bảng
+hide empty fields
+hide empty methods
+left to right direction
+package "Tầng nghiệp vụ" {
+  class ApprovalService
+  class AttachmentService
+  class AuditWriter
+  class AuthService
+  class CatalogService
+  class DashboardService
+  class DossierService
+  class IntakeService
+  class NotificationQueue
+  class ReviewService
+  class StaffQueryService
+  class StaffUserService
+  class WorkingCalendar
+}
+package "Tầng truy cập dữ liệu" {
+  interface AttachmentRepository <<attachment>>
+  interface AuthTokenRepository <<auth_token>>
+  interface DossierRepository <<dossier>>
+  interface HolidayRepository <<holiday>>
+  interface NotificationRepository <<notification>>
+  interface ProcedureRepository <<procedure>>
+  interface ProcessingLogRepository <<processing_log>>
+  interface SupplementRequestRepository <<supplement_request>>
+  interface UserRepository <<app_user>>
+}
+AuthService --> UserRepository
+AuthService --> AuthTokenRepository
+StaffUserService --> UserRepository
+CatalogService --> ProcedureRepository
+CatalogService --> HolidayRepository
+WorkingCalendar --> HolidayRepository
+DossierService --> DossierRepository
+IntakeService --> DossierRepository
+IntakeService --> SupplementRequestRepository
+ReviewService --> DossierRepository
+ApprovalService --> DossierRepository
+ApprovalService --> UserRepository
+StaffQueryService --> DossierRepository
+DashboardService --> DossierRepository
+AttachmentService --> AttachmentRepository
+AuditWriter --> ProcessingLogRepository
+NotificationQueue --> NotificationRepository
+note "Chỉ vẽ các phụ thuộc chính; danh sách đủ ở hàm dựng của từng lớp.\nSupplementItem, DossierComponent, AdminAuditLog, dossier_code_counter\nđược truy cập qua repository hoặc EntityManager tương ứng." as N
+@enduml

@@ -1,0 +1,33 @@
+@startuml 21_state_tep_dinh_kem
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title State – Tệp đính kèm (bảng attachment và đối tượng trong kho S3, FR-08)
+state "Đang kiểm tra" as CHECK
+state "Đã ghi vào kho S3" as STORED
+state "Thành phần hồ sơ\nkind = DOSSIER" as DOSSIER
+state "Dự thảo kết quả\nkind = DRAFT" as DRAFT
+state "Kết quả\nkind = RESULT" as RESULT
+[*] --> CHECK : tải lên
+CHECK --> [*] : sai loại (đọc nội dung), > 10 MB,\ntổng > 30 MB, hoặc không có quyền
+CHECK --> STORED : hợp lệ / put(key)
+STORED --> [*] : ghi CSDL lỗi\n/ xoá đối tượng (bù trừ, Q-01)
+STORED --> DOSSIER : Người dân tải lên\n/ lưu dòng attachment
+STORED --> DRAFT : CCTP tải PDF\n/ lưu dòng attachment
+DOSSIER --> [*] : Người dân xoá\n[hồ sơ DRAFT hoặc NEED_SUPPLEMENT]
+DRAFT --> [*] : CCTP xoá [hồ sơ IN_PROGRESS]
+DRAFT --> RESULT : Lãnh đạo phê duyệt (FR-21)
+RESULT --> RESULT : tải qua URL ký 5 phút\n[người dân: chỉ khi RETURNED,\ntrả điện tử]
+note right of DOSSIER
+  Tải xuống chỉ qua URL ký 5 phút,
+  cấp sau khi kiểm tra quyền.
+  Ngoài trạng thái cho phép sửa,
+  tệp chỉ đọc (409).
+end note
+@enduml

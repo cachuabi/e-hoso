@@ -1,0 +1,86 @@
+@startuml 17_activity_can_bo
+
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Activity – Cán bộ xử lý hồ sơ (UC-08 → UC-13)
+|Cán bộ một cửa|
+start
+:Mở hàng đợi hồ sơ SUBMITTED,
+cũ nhất trước, kèm nhãn hạn (UC-13);
+:Kiểm tra biểu mẫu và tệp (UC-08);
+if (Kết luận?) then (từ chối)
+  :Ghi lý do từ chối;
+  |Hệ thống|
+  :Chuyển REJECTED, ghi nhật ký, xếp email;
+  stop
+elseif () then (thiếu)
+  |Cán bộ một cửa|
+  :Chọn các thành phần thiếu,
+  ghi hướng dẫn một lần (BR-09);
+  |Hệ thống|
+  :Lưu phiếu yêu cầu bổ sung,
+  chuyển NEED_SUPPLEMENT, xếp email;
+  note right: người dân bổ sung theo\nsơ đồ activity người dân
+  stop
+else (đủ)
+endif
+|Cán bộ một cửa|
+if (Thủ tục chứng thực?) then (có)
+  :Xác nhận đã đối chiếu bản chính;
+endif
+:Tiếp nhận;
+|Hệ thống|
+:Cấp mã HS-yyMMdd-nnnn, tính ngày hẹn trả
+(mốc 15:00, ngày làm việc, ngày nghỉ),
+chuyển ACCEPTED, xếp email;
+|Cán bộ một cửa|
+:In phiếu hẹn;
+:Chọn CCTP theo số hồ sơ đang xử lý (UC-09);
+|Hệ thống|
+:Chuyển IN_PROGRESS, ghi người được giao;
+|Công chức tư pháp – hộ tịch|
+repeat
+  :Thẩm định hồ sơ (UC-10);
+  if (Cần xác minh và thủ tục cho phép?) then (có, lần đầu)
+    :Ghi nơi xác minh;
+    |Hệ thống|
+    :Cộng 3 ngày làm việc vào hạn,
+    xếp email gia hạn (BR-05);
+  endif
+  |Công chức tư pháp – hộ tịch|
+  :Ghi ý kiến, tải dự thảo PDF, trình;
+  |Hệ thống|
+  :Chuyển PENDING_APPROVAL;
+  |Lãnh đạo UBND xã|
+  :Xem hồ sơ, dự thảo (UC-11);
+  if (Đồng ý?) then (có)
+    :Nhập mật khẩu để ký mô phỏng;
+    |Hệ thống|
+    if (Đúng mật khẩu?) then (đúng)
+      :Chuyển APPROVED, ghi thời điểm có kết quả,
+      dự thảo thành kết quả, xếp email;
+    else (sai)
+      :Đếm lần sai; 3 lần thì khoá
+      phê duyệt 15 phút;
+    endif
+  else (không)
+    |Lãnh đạo UBND xã|
+    :Ghi lý do, trả lại;
+    |Hệ thống|
+    :Chuyển IN_PROGRESS, xếp email;
+  endif
+  |Công chức tư pháp – hộ tịch|
+repeat while (Đã APPROVED?) is (chưa) not (rồi)
+|Cán bộ một cửa|
+:Trả kết quả, chọn tại quầy hoặc điện tử (UC-12);
+|Hệ thống|
+:Chuyển RETURNED, ghi thời điểm trả,
+ghi nhật ký, xếp email;
+stop
+@enduml

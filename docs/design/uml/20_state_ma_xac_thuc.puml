@@ -1,0 +1,27 @@
+@startuml 20_state_ma_xac_thuc
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title State – Mã xác thực (bảng auth_token: VERIFY, RESET, REFRESH)
+state "Còn hiệu lực\nused_at rỗng, expires_at > hiện tại" as VALID
+state "Đã dùng hoặc thu hồi\nused_at có giá trị" as USED
+state "Hết hạn\nexpires_at ≤ hiện tại" as EXPIRED
+[*] --> VALID : phát hành\n/ lưu SHA-256, gửi mã gốc một lần
+VALID --> USED : dùng đúng mục đích\n(xác thực email, đặt lại mật khẩu,\nđổi refresh token)
+VALID --> USED : đăng xuất, đặt lại mật khẩu\nhoặc bị khoá (REFRESH bị thu hồi)
+VALID --> EXPIRED : quá hạn: VERIFY 24 giờ,\nRESET 30 phút, REFRESH 7 ngày
+USED --> [*]
+EXPIRED --> [*]
+note bottom of USED
+  Dùng lại mã đã dùng hoặc hết hạn
+  trả 400 BAD_TOKEN (refresh: 401).
+  Trạng thái suy ra từ used_at, expires_at;
+  bảng không có cột status.
+end note
+@enduml

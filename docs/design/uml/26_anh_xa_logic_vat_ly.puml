@@ -1,0 +1,49 @@
+@startuml 26_anh_xa_logic_vat_ly
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Ánh xạ thành phần logic sang phần cứng, phần mềm và thao tác thủ công
+left to right direction
+package "Thành phần logic" {
+  rectangle "Giao diện người dùng" as L1
+  rectangle "Dịch vụ nghiệp vụ\n(9 module)" as L2
+  rectangle "Lưu trữ dữ liệu có cấu trúc" as L3
+  rectangle "Lưu trữ tệp" as L4
+  rectangle "Thông báo" as L5
+  rectangle "Đối chiếu bản chính,\nký và đóng dấu, trao kết quả" as L6
+}
+package "Phần mềm (container Docker Compose)" {
+  node "frontend build\nphục vụ bởi proxy (Caddy)" as S1
+  node "backend\neclipse-temurin 21, ehoso-backend.jar" as S2
+  node "db\npostgres:17-alpine" as S3
+  node "storage\ndxflrs/garage" as S4
+  node "mail\naxllent/mailpit" as S5
+}
+package "Phần cứng" {
+  node "Máy chủ demo: Linux hoặc máy thành viên,\nx86 hoặc arm64, 8 GB RAM (NFR-08)" as H1
+  node "Thiết bị người dùng:\ntrình duyệt máy tính, điện thoại" as H2
+}
+package "Thủ công (ngoài hệ thống)" {
+  actor "Cán bộ một cửa\ntại quầy" as M1
+  actor "Lãnh đạo ký giấy\n(hệ thống chỉ ký mô phỏng)" as M2
+}
+L1 --> S1
+L1 --> H2
+L2 --> S2
+L3 --> S3
+L4 --> S4
+L5 --> S5
+L6 --> M1
+L6 --> M2
+S1 --> H1
+S2 --> H1
+S3 --> H1
+S4 --> H1
+S5 --> H1
+@enduml

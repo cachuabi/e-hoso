@@ -1,0 +1,26 @@
+@startuml 23_state_thong_bao
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title State – Thông báo email (bảng notification, FR-14, UC-17)
+state "Chờ gửi\nPENDING" as PENDING
+state "Đã gửi\nSENT" as SENT
+state "Gửi thất bại\nFAILED" as FAILED
+[*] --> PENDING : xếp hàng trong cùng giao dịch\nvới chuyển trạng thái (TK-04)
+PENDING --> SENT : gửi SMTP thành công\n/ ghi sent_at, xoá payload
+PENDING --> PENDING : lỗi SMTP [attempts ≤ 3]\n/ attempts + 1,\nhẹn lại sau attempts phút
+PENDING --> FAILED : lỗi SMTP lần thứ 4\n/ ghi last_error, xoá payload
+SENT --> [*]
+FAILED --> [*]
+note right of PENDING
+  Bộ lập lịch chạy mỗi 5 giây,
+  mỗi lượt tối đa 20 email đến hạn.
+  Lỗi email không làm hỏng hồ sơ.
+end note
+@enduml

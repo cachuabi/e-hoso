@@ -1,0 +1,73 @@
+@startuml 14_dfd_muc1
+!pragma layout smetana
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title DFD mức 1 – e-HoSo (cân bằng với sơ đồ ngữ cảnh 02)
+rectangle "E1\nKhách, Người dân" as E1
+rectangle "E2\nCBMC, CCTP, Lãnh đạo,\nQuản trị viên" as E2
+rectangle "E3\nMáy chủ SMTP" as E3
+
+usecase "1.0\nQuản lý tài khoản\nvà xác thực\n(FR-01–05)" as P1
+usecase "2.0\nCung cấp danh mục,\ncấu hình thủ tục\n(FR-06, 27, 28)" as P2
+usecase "3.0\nNộp và theo dõi\nhồ sơ của người dân\n(FR-07–11, 13)" as P3
+usecase "4.0\nXử lý hồ sơ\n(FR-15–22)" as P4
+usecase "5.0\nTra cứu công khai\n(FR-12)" as P5
+usecase "6.0\nGhi nhật ký\n(FR-23)" as P6
+usecase "7.0\nGửi thông báo\n(FR-14)" as P7
+usecase "8.0\nTheo dõi hạn,\nthống kê\n(FR-24–26)" as P8
+
+database "D1 Tài khoản" as D1
+database "D2 Mã xác thực" as D2
+database "D3 Danh mục, lịch" as D3
+database "D4 Hồ sơ, yêu cầu bổ sung" as D4
+database "D5 Tệp (siêu dữ liệu + kho S3)" as D5
+database "D6 Nhật ký" as D6
+database "D7 Hàng đợi thông báo" as D7
+
+E1 --> P1 : thông tin đăng ký,\nthông tin đăng nhập
+P1 --> E1 : phiên đăng nhập
+E2 --> P1 : tài khoản cán bộ,\nkhoá, đổi vai trò
+P1 <--> D1 : tài khoản
+P1 <--> D2 : mã băm, hạn
+P1 --> D7 : email xác thực,\nđặt lại mật khẩu
+
+E1 --> P2 : chọn thủ tục
+P2 --> E1 : thành phần, thời hạn,\nbiểu mẫu
+E2 --> P2 : thời hạn, thành phần,\nngày nghỉ
+P2 <--> D3 : danh mục, lịch
+
+E1 --> P3 : biểu mẫu, tệp,\nnộp, bổ sung, rút
+P3 --> E1 : mã tham chiếu,\ntrạng thái
+D3 --> P3 : thành phần bắt buộc
+P3 <--> D4 : hồ sơ
+P3 <--> D5 : tệp hồ sơ
+P3 --> P6 : sự kiện chuyển trạng thái
+
+E2 --> P4 : quyết định tiếp nhận,\nphân công, ý kiến, phê duyệt
+P4 --> E2 : hàng đợi, chi tiết,\nnhật ký hồ sơ
+D3 --> P4 : thời hạn, ngày nghỉ
+D1 <--> P4 : CCTP hoạt động, mật khẩu\nphê duyệt, số lần sai
+P4 <--> D4 : trạng thái, mã hồ sơ,\nhạn trả
+P4 <--> D5 : dự thảo, kết quả
+P4 --> P6 : sự kiện chuyển trạng thái
+D6 --> P4 : nhật ký hồ sơ
+
+E1 --> P5 : mã, 4 số cuối định danh
+D4 --> P5 : thủ tục, trạng thái,\nngày hẹn
+P5 --> E1 : 4 trường công khai
+
+P6 --> D6 : dòng nhật ký (chỉ thêm)
+P6 --> D7 : thông báo theo sự kiện
+D7 --> P7 : email đến hạn gửi
+P7 --> D7 : SENT, FAILED, số lần thử
+P7 --> E3 : email
+
+D4 --> P8 : hạn trả, thời điểm có kết quả
+P8 --> E2 : nhãn hạn, dashboard, CSV
+@enduml

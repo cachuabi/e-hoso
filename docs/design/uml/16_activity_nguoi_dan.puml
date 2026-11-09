@@ -1,0 +1,84 @@
+@startuml 16_activity_nguoi_dan
+
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Activity – Khách và Người dân (UC-01 → UC-07)
+|Khách, Người dân|
+start
+:Xem danh mục thủ tục, thành phần, thời hạn (UC-03);
+if (Chỉ muốn tra cứu hồ sơ đã nộp?) then (có)
+  :Nhập mã hồ sơ hoặc mã tham chiếu
+  và 4 số cuối định danh (UC-07);
+  |Hệ thống|
+  if (Khớp mã và 4 số cuối?) then (có)
+    :Trả 4 trường: tên thủ tục, trạng thái,
+    các mốc thời gian, ngày hẹn trả;
+  else (không)
+    :Trả cùng một thông báo chung;
+    note right: quá 10 lần sai trong 10 phút\nthì chặn địa chỉ 10 phút
+  endif
+  stop
+endif
+|Khách, Người dân|
+if (Đã có tài khoản?) then (chưa)
+  :Đăng ký: họ tên, số định danh,
+  email, điện thoại, mật khẩu (UC-01);
+  |Hệ thống|
+  :Tạo tài khoản PENDING,
+  xếp email xác thực (hạn 24 giờ);
+  |Dịch vụ email|
+  :Gửi liên kết xác thực;
+  |Khách, Người dân|
+  :Bấm liên kết xác thực;
+  |Hệ thống|
+  :Kích hoạt tài khoản (ACTIVE);
+endif
+|Khách, Người dân|
+:Đăng nhập (UC-02);
+note right: quên mật khẩu: liên kết đặt lại\nhạn 30 phút, dùng một lần
+|Hệ thống|
+if (Sai mật khẩu 5 lần liên tiếp?) then (có)
+  :Khoá đăng nhập 15 phút;
+  stop
+endif
+|Khách, Người dân|
+:Chọn thủ tục, điền biểu mẫu, lưu nháp (UC-04);
+:Đính kèm tệp theo từng thành phần;
+|Hệ thống|
+:Kiểm tra loại tệp theo nội dung,
+tối đa 10 MB một tệp, 30 MB một hồ sơ;
+|Khách, Người dân|
+:Nộp hồ sơ;
+|Hệ thống|
+if (Đủ thành phần, trường bắt buộc?) then (đủ)
+  :Cấp mã tham chiếu, chuyển SUBMITTED,
+  ghi nhật ký, xếp email;
+else (thiếu)
+  :Báo từng lỗi, giữ nguyên nháp;
+  stop
+endif
+|Khách, Người dân|
+repeat
+  :Theo dõi danh sách hồ sơ của tôi (UC-07);
+  if (Trạng thái?) then (NEED_SUPPLEMENT)
+    :Sửa biểu mẫu, thay tệp theo
+    danh sách thiếu sót (UC-05);
+    :Nộp lại, giữ mã tham chiếu;
+  elseif (SUBMITTED hoặc NEED_SUPPLEMENT,\nmuốn rút) then (rút)
+    :Rút hồ sơ (UC-06);
+    |Hệ thống|
+    :Chuyển WITHDRAWN, ghi nhật ký;
+    stop
+  else (khác)
+  endif
+  |Khách, Người dân|
+repeat while (Đã RETURNED hoặc REJECTED?) is (chưa) not (rồi)
+:Nhận kết quả tại quầy hoặc tải bản điện tử;
+stop
+@enduml
