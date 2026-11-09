@@ -33,7 +33,7 @@ Chọn **Garage** (`dxflrs/garage`, ghim v2.4.1). Dự phòng: **RustFS** (`rust
 - Backend truy cập kho tệp qua giao diện riêng (`FileStoragePort`) dùng AWS SDK for Java v2, `forcePathStyle(true)`; đổi sản phẩm chỉ sửa `docker-compose.yml` và biến môi trường.
 - `S3Presigner` ký theo endpoint công khai; `S3Client` dùng endpoint nội bộ trong mạng Compose.
 - Ghi tệp và ghi CSDL không cùng giao dịch: ghi tệp trước, ghi CSDL sau, lỗi thì xoá tệp vừa ghi (RV-M2-01, Q-01). Chi tiết ở SDD.
-- Khoá lưu trữ không chứa tên tệp hay dữ liệu cá nhân, ví dụ `ho-so/<mã tham chiếu>/<uuid>` (Q-02).
+- Khoá lưu trữ không chứa tên tệp hay dữ liệu cá nhân, ví dụ `ho-so/<id hồ sơ>/<uuid>` (Q-02).
 - Chuyển sang RustFS nếu một trong K1, K3, K4, K6, K7 không đạt và không khắc phục được trong 2 giờ kiểm chứng.
 
 ## Việc còn lại (issue #40)

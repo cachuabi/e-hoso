@@ -1,0 +1,52 @@
+@startuml 10_seq_uc11
+skinparam shadowing false
+skinparam maxMessageSize 165
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title UC-11 Phê duyệt kết quả (FR-21, 14, 23; BR-07, 08)
+autonumber
+hide footbox
+actor "Lãnh đạo" as U
+participant "SPA" as F
+participant "WorkflowController" as C
+participant "ApprovalService" as S
+participant "DossierLifecycle" as L
+database "PostgreSQL" as D
+U -> F : mở danh sách chờ phê duyệt, chọn hồ sơ
+F -> C : GET /staff/dossiers/{id}
+C --> F : hồ sơ, ý kiến thẩm định, URL ký của dự thảo
+alt Phê duyệt
+  U -> F : nhập lại mật khẩu
+  F -> C : POST /staff/dossiers/{id}/approve
+  C -> S : approve(mật khẩu)
+  S -> D : đọc người dùng, kiểm tra khoá phê duyệt
+  alt Đang bị khoá thao tác phê duyệt
+    S --> F : 423, thời điểm mở khoá
+  else Sai mật khẩu (4a)
+    S -> D : số lần sai + 1; đủ 3 lần thì khoá 15 phút
+    S --> F : 422, không đổi trạng thái
+  else Đúng mật khẩu (BCrypt)
+    group Một giao dịch (NFR-05)
+      S -> D : đặt lại số lần sai
+      S -> D : tệp DRAFT mới nhất trở thành RESULT;\nthời điểm có kết quả; ngày hết giá trị nếu có (BR-08)
+      S -> L : apply(APPROVE)
+      L -> D : UPDATE sang APPROVED, INSERT nhật ký,\nINSERT thông báo cho người dân
+    end
+    S --> F : 200; đúng hạn nếu thời điểm có kết quả ≤ hạn trả (BR-07)
+  end
+else Trả lại (3a)
+  U -> F : nhập lý do bắt buộc
+  F -> C : POST /staff/dossiers/{id}/send-back
+  C -> S : sendBack(lý do)
+  group Một giao dịch
+    S -> L : apply(SEND_BACK)
+    L -> D : UPDATE về IN_PROGRESS, INSERT nhật ký,\nINSERT thông báo nội bộ cho CCTP
+  end
+  S --> F : 200
+end
+@enduml

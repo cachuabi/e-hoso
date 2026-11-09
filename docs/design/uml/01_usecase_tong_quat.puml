@@ -1,0 +1,72 @@
+@startuml 01_usecase_tong_quat
+skinparam shadowing false
+skinparam dpi 192
+skinparam monochrome true
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam ArrowColor #333333
+skinparam BackgroundColor white
+title Sơ đồ use case tổng quát – e-HoSo (SRS v1.1 mục 2.2, Use case v1.1)
+left to right direction
+actor "Khách" as K
+actor "Người dùng\nđã đăng nhập" as ND
+actor "Người dân" as D
+actor "Cán bộ một cửa" as CB
+actor "Công chức tư pháp\n– hộ tịch" as CC
+actor "Lãnh đạo UBND xã" as LD
+actor "Quản trị viên" as AD
+actor "Dịch vụ email" as EM
+D -up-|> ND
+CB -up-|> ND
+CC -up-|> ND
+LD -up-|> ND
+AD -up-|> ND
+rectangle "e-HoSo" {
+  usecase "UC-01 Đăng ký tài khoản" as U1
+  usecase "UC-02 Đăng nhập,\nđặt lại mật khẩu" as U2
+  usecase "UC-03 Xem danh mục thủ tục" as U3
+  usecase "UC-04 Nộp hồ sơ trực tuyến" as U4
+  usecase "UC-05 Bổ sung hồ sơ" as U5
+  usecase "UC-06 Rút hồ sơ" as U6
+  usecase "UC-07 Tra cứu trạng thái hồ sơ" as U7
+  usecase "UC-08 Tiếp nhận hồ sơ" as U8
+  usecase "UC-09 Phân công xử lý" as U9
+  usecase "UC-10 Thẩm định,\ntrình phê duyệt" as U10
+  usecase "UC-11 Phê duyệt kết quả" as U11
+  usecase "UC-12 Trả kết quả" as U12
+  usecase "UC-13 Theo dõi hạn xử lý" as U13
+  usecase "UC-14 Xem dashboard,\nxuất báo cáo" as U14
+  usecase "UC-15 Quản lý tài khoản cán bộ" as U15
+  usecase "UC-16 Cấu hình thủ tục,\nlịch ngày nghỉ" as U16
+  usecase "UC-17 Gửi thông báo trạng thái" as U17
+}
+K --> U1
+K --> U3
+K --> U7
+ND --> U2
+D --> U4
+D --> U5
+D --> U6
+D --> U7
+D --> U12
+CB --> U8
+CB --> U9
+CB --> U12
+CB --> U13
+CC --> U10
+CC --> U13
+LD --> U11
+LD --> U13
+LD --> U14
+AD --> U15
+AD --> U16
+U1 ..> U17 : <<include>>
+U4 ..> U17 : <<include>>
+U5 ..> U17 : <<include>>
+U8 ..> U17 : <<include>>
+U10 ..> U17 : <<include>>
+U11 ..> U17 : <<include>>
+U12 ..> U17 : <<include>>
+U17 --> EM
+@enduml
