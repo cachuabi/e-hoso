@@ -2,7 +2,7 @@
 #
 # RTM_ENFORCE_SPRINTS: sprints whose Must requirements must each have at least one test.
 # Empty until a sprint starts being accepted; set to S1 at milestone M3 and S1,S2 at M4.
-RTM_ENFORCE_SPRINTS ?=
+RTM_ENFORCE_SPRINTS ?= S1,S2
 
 .PHONY: check backend frontend tools rtm deps
 
